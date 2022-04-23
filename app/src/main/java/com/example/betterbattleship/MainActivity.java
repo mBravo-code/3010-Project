@@ -1,8 +1,10 @@
 package com.example.betterbattleship;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Build;
@@ -32,6 +34,7 @@ import android.content.BroadcastReceiver;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,12 +79,37 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
-        // Everything down here is boilerplate stuff
-
         if (!initP2p()) {
             finish();
         }
 
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.e(null, "Found peers");
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                switch (reason){
+                    case WifiP2pManager.BUSY: Log.e(null, "Did not find peers. Reason: Busy"); break;
+                    case WifiP2pManager.ERROR: Log.e(null, "Did not find peers. Reason: Error"); break;
+                    case WifiP2pManager.P2P_UNSUPPORTED: Log.e(null, "Did not find peers. Reason: Unsupported"); break;
+                }
+
+            }
+        });
+
+//        Button hostButton = (Button) findViewById(R.id.HostButton);
+//        hostButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//
+//            }
+//        });
+
+        // Everything down here is boilerplate stuff
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -92,35 +120,12 @@ public class MainActivity extends AppCompatActivity {
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-//        binding.fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Log.e(null, "Found peers");
-                    }
-
-                    @Override
-                    public void onFailure(int reason) {
-                        switch (reason){
-                            case WifiP2pManager.BUSY: Log.e(null, "Did not find peers. Reason: Busy"); break;
-                            case WifiP2pManager.ERROR: Log.e(null, "Did not find peers. Reason: Error"); break;
-                            case WifiP2pManager.P2P_UNSUPPORTED: Log.e(null, "Did not find peers. Reason: Unsupported"); break;
-                        }
-
-                    }
-                });
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
-
-
-
         });
     }
 
