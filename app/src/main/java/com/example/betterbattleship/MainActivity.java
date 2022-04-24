@@ -100,15 +100,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        Button hostButton = (Button) findViewById(R.id.HostButton);
-//        hostButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//
-//            }
-//        });
-
         // Everything down here is boilerplate stuff
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -125,6 +116,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+            }
+        });
+
+        Button hostButton = (Button) findViewById(R.id.HostButton);
+        hostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createGame(v);
             }
         });
     }
@@ -203,6 +202,34 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    public void createGame(View view){
+        ArrayList<WifiP2pDevice> peerList = ((WiFiDirectBroadcastReceiver ) receiver).getListOfPeers();
+        for (WifiP2pDevice peer : peerList) {
+
+            Log.e("PEER IS: ", "Peer is " + peer);
+            WifiP2pConfig config = new WifiP2pConfig();
+            config.deviceAddress = peer.deviceAddress;
+            try {
+                manager.connect(channel, config, new WifiP2pManager.ActionListener() {
+
+                    @Override
+                    public void onSuccess() {
+                        Log.e("CONNECTION TO PEER", "SUCCESSFULLY CONNECTED TO PEER" + peer.deviceAddress);
+                    }
+
+                    @Override
+                    public void onFailure(int reason) {
+                        Log.e("CONNECTION TO PEER", "UNABLE TO CONNECT TO PEER" + peer.deviceAddress);
+                    }
+                });
+            }
+            catch (Error e){
+                Log.e("Connection", "not doing that for sure");
+            }
+
+        }
     }
 
 }

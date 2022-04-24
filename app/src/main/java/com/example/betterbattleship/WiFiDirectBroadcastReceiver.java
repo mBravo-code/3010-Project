@@ -68,16 +68,13 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     }
 
     private ArrayList<WifiP2pDevice> peers = new ArrayList<>();
+
     private WifiP2pManager.PeerListListener peerListListener = peerList -> {
 
         List<WifiP2pDevice> refreshedPeers = new ArrayList<>(peerList.getDeviceList());
         if (!refreshedPeers.equals(peers)) {
             peers.clear();
             peers.addAll(refreshedPeers);
-
-            for (WifiP2pDevice peer : peers) {
-                Log.e("PEERS: ", peer.deviceName);
-            }
 
 
             // If an AdapterView is backed by this data, notify it
@@ -94,6 +91,10 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             return;
         }
     };
+
+    public ArrayList<WifiP2pDevice> getListOfPeers(){
+        return peers;
+    }
 
     public void sendSocket(JSONObject json, String host, int port) {
         Socket socket = new Socket();
