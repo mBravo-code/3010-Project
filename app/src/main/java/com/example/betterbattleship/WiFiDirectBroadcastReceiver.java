@@ -3,13 +3,16 @@ package com.example.betterbattleship;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -18,11 +21,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager.Channel channel;
     private MainActivity activity;
     private ArrayList<Player> players;
+    private boolean isConnected;
+
+    private static final int SERVER_PORT = 8888;
 
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
                                        MainActivity activity, ArrayList<Player> players) {
@@ -40,16 +46,21 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         this.channel = channel;
         this.activity = activity;
         this.players = players;
+        isConnected = false;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         Log.e("intent", intent.getAction());
+
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             Log.e("State is now: ", "" + state);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
+                //NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+
+                //this.isConnected = networkInfo.isConnected();
             } else {
             }
 
@@ -63,9 +74,37 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             }
 
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
-            // Respond to new connection or disconnections
+
+            if (manager == null) {
+                return;
+            }
+
+
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             // Respond to this device's wifi state changing
+        }
+    }
+
+    public void sendRequestToJoin() {
+
+        // We are connected with the other device, request connection
+        // info to find group owner IP
+        manager.requestConnectionInfo(channel, connectionListener);
+
+        if (isConnected) {
+
+            Log.e(null, "ConnectionListener executed");
+
+            try {
+                JSONObject request = new JSONObject();
+                request.put("type", "joinGame");
+
+                // Sends request to join
+                WiFiDirectBroadcastReceiver.SocketWrite writer = new WiFiDirectBroadcastReceiver.SocketWrite(request, hostAddress, SERVER_PORT);
+                writer.execute();
+            } catch (JSONException e) {
+                Log.e("JSONERROR", e.toString());
+            }
         }
     }
 
@@ -98,42 +137,96 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         return peers;
     }
 
-    public void sendSocket(JSONObject json, String host, int port) {
-        Socket socket = new Socket();
+    // methods for handling host address
+    private InetAddress hostAddress;
 
-        try {
-            socket.bind(null);
-            socket.connect((new InetSocketAddress(host, port)), 500);
+    private WifiP2pManager.ConnectionInfoListener connectionListener = info -> {
+        hostAddress = info.groupOwnerAddress;
+        this.isConnected = info.groupFormed;
+    };
 
-            try (OutputStreamWriter out = new OutputStreamWriter(
-                    socket.getOutputStream(), StandardCharsets.UTF_8)) {
-                out.write(json.toString());
-            }
-        } catch (IOException e) {
-            //catch logic
+    private InetAddress getGroupIP(){
+        return hostAddress;
+    }
+
+    public static class SocketWrite extends AsyncTask {
+
+        JSONObject json;
+        InetSocketAddress socketAddress;
+
+        public SocketWrite(JSONObject json, InetAddress host, int port){
+            this.json = json;
+            socketAddress = new InetSocketAddress(host, port);
         }
 
-        finally {
-            if (socket != null) {
-                if (socket.isConnected()) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        //catch logic
+        @Override
+        protected Object doInBackground(Object[] objects) {
+
+            Socket socket = new Socket();
+
+            try {
+                socket.bind(null);
+                Log.e(null, "Now connecting to socket" + socketAddress.toString());
+                socket.connect(socketAddress, 500);
+
+                try (OutputStreamWriter out = new OutputStreamWriter(
+                        socket.getOutputStream(), Charset.forName("UTF-8"))) {
+                    out.write(json.toString());
+                }
+            } catch (IOException e) {
+                //catch logic
+            }
+
+            finally {
+                if (socket != null) {
+                    if (socket.isConnected()) {
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            //catch logic
+                        }
                     }
                 }
             }
+            return null;
         }
     }
 
     public static class SocketListen extends AsyncTask {
+
+        private Context context;
+        ArrayList<Player> players;
+
+        public SocketListen(Context context, ArrayList<Player> players){
+            this.context = context;
+            this.players = players;
+        }
+
         @Override
         protected Object doInBackground(Object[] objects) {
             while(true) {
                 try {
-                    ServerSocket serverSocket = new ServerSocket(8888);
+                    ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+                    Log.e(null, "Now listening on port" + SERVER_PORT);
                     Socket client = serverSocket.accept();
                     InputStream inputStream = client.getInputStream();
+
+                    try{
+                        JSONObject message = inputStreamToJson(inputStream);
+                        Log.d("Message", "Received message: " + message.toString());
+                        String type = message.getString("type");
+                        switch(type){
+                            case "joinGame":
+                                addPlayerToGame(client.getInetAddress(), client.getPort());
+                                break;
+                            case "consensus":
+                                keepConsensus();
+                                break;
+                        }
+                    } catch (Exception e){
+                        Log.e("Socket received", "Invalid message received from socket." + e.toString());
+                    }
+
                     return null;
 
                 } catch (IOException e) {
@@ -141,5 +234,25 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 }
             }
         }
+
+        private void addPlayerToGame(InetAddress host, int port){
+            Player newPlayer = new Player(false, new int[] {0,0}, host, port);
+            this.players.add(newPlayer);
+        }
+
+        private void keepConsensus(){
+            return;
+        }
+
+        private JSONObject inputStreamToJson(InputStream in) throws IOException, JSONException {
+            BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
+            StringBuilder responseStrBuilder = new StringBuilder();
+
+            String inputStr;
+            while ((inputStr = streamReader.readLine()) != null)
+                responseStrBuilder.append(inputStr);
+            return new JSONObject(responseStrBuilder.toString());
+        }
     }
+
 }
