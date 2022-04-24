@@ -36,6 +36,7 @@
         android:layout_width="match_parent"
         android:layout_marginTop="250dp"
         android:layout_height="wrap_content"
-        android:text="Host a game" />
+        android:text="Host a game"
+        android:onClick="createGame"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
