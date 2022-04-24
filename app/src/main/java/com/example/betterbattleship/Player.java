@@ -1,12 +1,14 @@
 package com.example.betterbattleship;
 
+import java.net.InetAddress;
+
 public class Player {
     boolean turn;
     int coordinates[];
-    String host;
+    InetAddress host;
     int port;
 
-    public Player(boolean turn, int coordinates[], String host, int port) {
+    public Player(boolean turn, int coordinates[], InetAddress host, int port) {
         this.turn = turn;
         this.coordinates = coordinates;
         this.host = host;
@@ -21,7 +23,7 @@ public class Player {
         return coordinates;
     }
 
-    public String getHost() {
+    public InetAddress getHost() {
         return host;
     }
 
