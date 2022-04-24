@@ -37,9 +37,12 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.widget.Button;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     Channel channel;
     BroadcastReceiver receiver;
     IntentFilter intentFilter;
+    ArrayList<Player> players;
 
     private static final String TAG = "Wifi test=========";
     private int PERMISSIONS_REQUEST_LOCATION = 100;
@@ -161,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
+        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this, players);
         registerReceiver(receiver, intentFilter);
 
     }
@@ -230,6 +234,68 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    public void startGame(View view) {
+        JSONObject msg;
+        try {
+            msg = convertStateToJSON(players);
+            msg.put("type", "startGame");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        for (Player player : players) {
+            try {
+                manager.sendSocket(msg, player.getHost(), player.getPort());
+            }
+            catch (Error e) {
+                    Log.e("Send socket", "Failed to send msg");
+            }
+        }
+    }
+
+    public void sendState(View view) {
+        JSONObject msg;
+        try {
+            msg = convertStateToJSON(players);
+            msg.put("type", "newState");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        for (Player player : players) {
+            try {
+                manager.sendSocket(msg, player.getHost(), player.getPort());
+            }
+            catch (Error e) {
+                Log.e("Send socket", "Failed to send msg");
+            }
+        }
+    }
+
+    private JSONObject convertStateToJSON(ArrayList<Player> players){
+        JSONArray allDataArray = new JSONArray();
+
+        for(int i = 0; i < players.size(); i++) {
+            JSONObject eachData = new JSONObject();
+            try {
+                eachData.put("turn", players.get(i).getTurn());
+                eachData.put("coordinates", players.get(i).coordinates);
+                eachData.put("host", players.get(i).getHost());
+                eachData.put("port", players.get(i).getPort());
+            } catch ( JSONException e) {
+                e.printStackTrace();
+            }
+            allDataArray.put(eachData);
+        }
+
+        JSONObject state = new JSONObject();
+        try {
+            state.put("state", allDataArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return state;
     }
 
 }

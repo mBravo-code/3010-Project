@@ -31,13 +31,15 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
     private MainActivity activity;
+    private ArrayList<Player> players;
 
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
-                                       MainActivity activity) {
+                                       MainActivity activity, ArrayList<Player> players) {
         super();
         this.manager = manager;
         this.channel = channel;
         this.activity = activity;
+        this.players = players;
     }
 
     @Override
