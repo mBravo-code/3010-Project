@@ -218,6 +218,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                         switch(type){
                             case "joinGame":
                                 addPlayerToGame(client.getInetAddress(), client.getPort());
+                                Log.e(null, "Player added");
                                 break;
                             case "consensus":
                                 keepConsensus();
