@@ -7,8 +7,22 @@ import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,4 +94,49 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             return;
         }
     };
+
+    public void sendSocket(JSONObject json, String host, int port) {
+        Socket socket = new Socket();
+
+        try {
+            socket.bind(null);
+            socket.connect((new InetSocketAddress(host, port)), 500);
+
+            try (OutputStreamWriter out = new OutputStreamWriter(
+                    socket.getOutputStream(), StandardCharsets.UTF_8)) {
+                out.write(json.toString());
+            }
+        } catch (IOException e) {
+            //catch logic
+        }
+
+        finally {
+            if (socket != null) {
+                if (socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        //catch logic
+                    }
+                }
+            }
+        }
+    }
+
+    public static class SocketListen extends AsyncTask {
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            while(true) {
+                try {
+                    ServerSocket serverSocket = new ServerSocket(8888);
+                    Socket client = serverSocket.accept();
+                    InputStream inputStream = client.getInputStream();
+                    return null;
+
+                } catch (IOException e) {
+                    return null;
+                }
+            }
+        }
+    }
 }
