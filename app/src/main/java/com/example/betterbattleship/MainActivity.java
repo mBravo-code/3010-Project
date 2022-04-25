@@ -209,67 +209,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void startGame(View view) {
-        JSONObject msg;
-        try {
-            msg = convertStateToJSON(players);
-            msg.put("type", "startGame");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        for (Player player : players) {
-            try {
-                //manager.sendSocket(msg, player.getHost(), player.getPort());
-            }
-            catch (Error e) {
-                    Log.e("Send socket", "Failed to send msg");
-            }
-        }
-    }
-
-    public void sendState(View view) {
-        JSONObject msg;
-        try {
-            msg = convertStateToJSON(players);
-            msg.put("type", "newState");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        for (Player player : players) {
-            try {
-                //manager.sendSocket(msg, player.getHost(), player.getPort());
-            }
-            catch (Error e) {
-                Log.e("Send socket", "Failed to send msg");
-            }
-        }
-    }
-
-    private JSONObject convertStateToJSON(ArrayList<Player> players){
-        JSONArray allDataArray = new JSONArray();
-
-        for(int i = 0; i < players.size(); i++) {
-            JSONObject eachData = new JSONObject();
-            try {
-                eachData.put("turn", players.get(i).getTurn());
-                eachData.put("coordinates", players.get(i).coordinates);
-                eachData.put("host", players.get(i).getHost());
-                eachData.put("port", players.get(i).getPort());
-            } catch ( JSONException e) {
-                e.printStackTrace();
-            }
-            allDataArray.put(eachData);
-        }
-
-        JSONObject state = new JSONObject();
-        try {
-            state.put("state", allDataArray);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return state;
-    }
 
     public void createGame(View view){
         ArrayList<WifiP2pDevice> peerList = ((WiFiDirectBroadcastReceiver ) receiver).getListOfPeers();
@@ -308,6 +247,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    public void startGame(View view) {
+        Log.e(null, "Now starting the game");
+        ((WiFiDirectBroadcastReceiver )receiver).startGame();
+    }
+
+    public void sendState(View view) {
+        Log.e(null, "Now trying sending state");
+        ((WiFiDirectBroadcastReceiver )receiver).sendState();
     }
 
     private void joinGame(View view){
