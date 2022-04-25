@@ -58,9 +58,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             Log.e("State is now: ", "" + state);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-                //NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
-
-                //this.isConnected = networkInfo.isConnected();
             } else {
             }
 
@@ -83,6 +80,10 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             // Respond to this device's wifi state changing
         }
+    }
+
+    public ArrayList<Player> getPlayers(){
+        return players;
     }
 
     public void sendRequestToJoin() {
@@ -116,15 +117,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         if (!refreshedPeers.equals(peers)) {
             peers.clear();
             peers.addAll(refreshedPeers);
-
-
-            // If an AdapterView is backed by this data, notify it
-            // of the change. For instance, if you have a ListView of
-            // available peers, trigger an update.
-//                ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
-
-            // Perform any other updates needed based on the new list of
-            // peers connected to the Wi-Fi P2P network.
         }
 
         if (peers.size() == 0) {

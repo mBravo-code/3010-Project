@@ -2,6 +2,7 @@ package com.example.betterbattleship;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.NetworkInfo;
@@ -16,6 +17,8 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Parcelable;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -131,6 +134,10 @@ public class MainActivity extends AppCompatActivity {
 
         Button joinButton = (Button) findViewById(R.id.JoinButton);
         joinButton.setOnClickListener(v -> joinGame(v));
+
+        // create listener socket
+        WiFiDirectBroadcastReceiver.SocketListen listener = new WiFiDirectBroadcastReceiver.SocketListen(getApplicationContext(), players);
+        listener.execute();
     }
 
     @Override
@@ -176,8 +183,6 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         unregisterReceiver(receiver);
     }
-
-
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private boolean initP2p() {
@@ -291,10 +296,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         Log.e("CONNECTION TO PEER", "SUCCESSFULLY CONNECTED TO PEER" + peer.deviceName);
-
-                        // create listener socket
-                        WiFiDirectBroadcastReceiver.SocketListen listener = new WiFiDirectBroadcastReceiver.SocketListen(getApplicationContext(), players);
-                        listener.execute();
                     }
 
                     @Override
@@ -308,6 +309,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+
+        Intent intent = new Intent(MainActivity.this, Lobby.class);
+        intent.putExtra("Receiver", (Parcelable) receiver);
+        startActivity(intent);
     }
 
     private void joinGame(View view){
