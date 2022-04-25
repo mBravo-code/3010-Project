@@ -36,7 +36,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     private boolean isConnected;
 
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
-                                       MainActivity activity, ArrayList<Player> players) {
+                                       MainActivity activity) {
         super();
         this.manager = manager;
         this.channel = channel;
@@ -88,15 +88,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         if (!refreshedPeers.equals(peers)) {
             peers.clear();
             peers.addAll(refreshedPeers);
-
-
-            // If an AdapterView is backed by this data, notify it
-            // of the change. For instance, if you have a ListView of
-            // available peers, trigger an update.
-//                ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
-
-            // Perform any other updates needed based on the new list of
-            // peers connected to the Wi-Fi P2P network.
         }
 
         if (peers.size() == 0) {

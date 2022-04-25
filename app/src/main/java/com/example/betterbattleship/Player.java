@@ -4,7 +4,7 @@ import java.net.InetAddress;
 
 public class Player {
     boolean turn;
-    int coordinates[];
+    public int coordinates[];
     InetAddress host;
     int port;
 

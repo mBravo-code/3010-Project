@@ -2,6 +2,7 @@ package com.example.betterbattleship;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.NetworkInfo;
@@ -16,6 +17,8 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Parcelable;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -47,6 +50,8 @@ import static android.Manifest.permission.CHANGE_WIFI_STATE;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static common.utils.convertStateToJSON;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -132,6 +137,10 @@ public class MainActivity extends AppCompatActivity {
 
         Button joinButton = (Button) findViewById(R.id.JoinButton);
         joinButton.setOnClickListener(v -> joinGame(v));
+
+        // create listener socket
+        SocketManager.SocketListen listener = new SocketManager.SocketListen(getApplicationContext());
+        listener.execute();
     }
 
     @Override
@@ -167,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this, players);
+        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
         registerReceiver(receiver, intentFilter);
 
     }
@@ -177,8 +186,6 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         unregisterReceiver(receiver);
     }
-
-
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private boolean initP2p() {
@@ -231,10 +238,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         Log.e("CONNECTION TO PEER", "SUCCESSFULLY CONNECTED TO PEER" + peer.deviceName);
-
-                        // create listener socket
-                        SocketManager.SocketListen listener = new SocketManager.SocketListen(getApplicationContext(), players);
-                        listener.execute();
                     }
 
                     @Override
@@ -247,26 +250,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Connection", "not doing that for sure");
             }
 
-        }
-    }
-
-    public void startGame(View view) {
-        Log.e(null, "Now starting the game");
-        JSONObject msg;
-        try {
-            msg = convertStateToJSON(this.players);
-            msg.put("type", "startGame");
-            for (Player player : players) {
-                try {
-                    SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
-                    writer.execute();
-                }
-                catch (Error e) {
-                    Log.e("Send socket", "Failed to send msg");
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 
@@ -306,32 +289,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             Log.e("JSONERROR", e.toString());
         }
-    }
-
-    private JSONObject convertStateToJSON(ArrayList<Player> players){
-        JSONArray allDataArray = new JSONArray();
-
-        for(int i = 0; i < players.size(); i++) {
-            JSONObject eachData = new JSONObject();
-            try {
-                eachData.put("turn", players.get(i).getTurn());
-                eachData.put("coordinates", players.get(i).coordinates);
-                eachData.put("host", players.get(i).getHost());
-                eachData.put("port", players.get(i).getPort());
-            } catch ( JSONException e) {
-                e.printStackTrace();
-            }
-            allDataArray.put(eachData);
-        }
-
-        JSONObject state = new JSONObject();
-        try {
-            state.put("state", allDataArray);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return state;
     }
 
 }

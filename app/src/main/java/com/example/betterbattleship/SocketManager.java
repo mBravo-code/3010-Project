@@ -20,6 +20,8 @@ import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+import common.PlayerListSingleton;
+
 public class SocketManager {
 
     private static final int SERVER_PORT = 8888;
@@ -70,11 +72,9 @@ public class SocketManager {
     public static class SocketListen extends AsyncTask {
 
         private Context context;
-        ArrayList<Player> players;
 
-        public SocketListen(Context context, ArrayList<Player> players){
+        public SocketListen(Context context){
             this.context = context;
-            this.players = players;
         }
 
         @Override
@@ -112,7 +112,7 @@ public class SocketManager {
 
         private void addPlayerToGame(InetAddress host, int port){
             Player newPlayer = new Player(false, new int[] {0,0}, host, port);
-            this.players.add(newPlayer);
+            PlayerListSingleton.getInstance().getPlayerList().add(newPlayer);
         }
 
         private void keepConsensus(){
