@@ -1,6 +1,7 @@
 package com.example.betterbattleship;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -113,6 +114,8 @@ public class SocketManager {
         private void addPlayerToGame(InetAddress host, int port){
             Player newPlayer = new Player(false, new int[] {0,0}, host, port);
             PlayerListSingleton.getInstance().getPlayerList().add(newPlayer);
+            Intent intent = new Intent("refresh_activity");
+            context.sendBroadcast(intent);
         }
 
         private void keepConsensus(){
