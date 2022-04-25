@@ -51,6 +51,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static common.utils.convertStateToJSON;
+
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
@@ -137,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         joinButton.setOnClickListener(v -> joinGame(v));
 
         // create listener socket
-        WiFiDirectBroadcastReceiver.SocketListen listener = new WiFiDirectBroadcastReceiver.SocketListen(getApplicationContext(), players);
+        SocketManager.SocketListen listener = new SocketManager.SocketListen(getApplicationContext());
         listener.execute();
     }
 
@@ -174,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this, players);
+        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
         registerReceiver(receiver, intentFilter);
 
     }
@@ -236,10 +238,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         Log.e("CONNECTION TO PEER", "SUCCESSFULLY CONNECTED TO PEER" + peer.deviceName);
-
-                        // create listener socket
-                        SocketManager.SocketListen listener = new SocketManager.SocketListen(getApplicationContext(), players);
-                        listener.execute();
                     }
 
                     @Override
@@ -252,26 +250,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Connection", "not doing that for sure");
             }
 
-        }
-    }
-
-    public void startGame(View view) {
-        Log.e(null, "Now starting the game");
-        JSONObject msg;
-        try {
-            msg = convertStateToJSON(this.players);
-            msg.put("type", "startGame");
-            for (Player player : players) {
-                try {
-                    SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
-                    writer.execute();
-                }
-                catch (Error e) {
-                    Log.e("Send socket", "Failed to send msg");
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 
@@ -311,32 +289,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             Log.e("JSONERROR", e.toString());
         }
-    }
-
-    private JSONObject convertStateToJSON(ArrayList<Player> players){
-        JSONArray allDataArray = new JSONArray();
-
-        for(int i = 0; i < players.size(); i++) {
-            JSONObject eachData = new JSONObject();
-            try {
-                eachData.put("turn", players.get(i).getTurn());
-                eachData.put("coordinates", players.get(i).coordinates);
-                eachData.put("host", players.get(i).getHost());
-                eachData.put("port", players.get(i).getPort());
-            } catch ( JSONException e) {
-                e.printStackTrace();
-            }
-            allDataArray.put(eachData);
-        }
-
-        JSONObject state = new JSONObject();
-        try {
-            state.put("state", allDataArray);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return state;
     }
 
 }

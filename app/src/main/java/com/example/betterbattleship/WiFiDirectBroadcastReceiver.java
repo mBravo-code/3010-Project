@@ -36,7 +36,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     private boolean isConnected;
 
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
-                                       MainActivity activity, ArrayList<Player> players) {
+                                       MainActivity activity) {
         super();
         this.manager = manager;
         this.channel = channel;
