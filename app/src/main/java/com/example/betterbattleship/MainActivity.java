@@ -40,6 +40,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.widget.Button;
 
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -214,39 +215,101 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void startGame(View view) {
-        JSONObject msg;
-        try {
-            msg = convertStateToJSON(players);
-            msg.put("type", "startGame");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        for (Player player : players) {
+
+    public void createGame(View view){
+        ArrayList<WifiP2pDevice> peerList = ((WiFiDirectBroadcastReceiver ) receiver).getListOfPeers();
+        for (WifiP2pDevice peer : peerList) {
+
+            // add exceptions
+            if (peer.primaryDeviceType.equals("7-0050F204-1") ||  peer.primaryDeviceType.equals("3-0050F204-1") || peer.deviceName.equals("DIRECT-63-HP DeskJet 2700 series"))
+                continue;
+
+            WifiP2pConfig config = new WifiP2pConfig();
+
+            // We want to be the group owner if we create the game
+            config.groupOwnerIntent = 15;
+            config.deviceAddress = peer.deviceAddress;
+
             try {
-                //manager.sendSocket(msg, player.getHost(), player.getPort());
+                manager.connect(channel, config, new WifiP2pManager.ActionListener() {
+
+                    @Override
+                    public void onSuccess() {
+                        Log.e("CONNECTION TO PEER", "SUCCESSFULLY CONNECTED TO PEER" + peer.deviceName);
+
+                        // create listener socket
+                        SocketManager.SocketListen listener = new SocketManager.SocketListen(getApplicationContext(), players);
+                        listener.execute();
+                    }
+
+                    @Override
+                    public void onFailure(int reason) {
+                        Log.e("CONNECTION TO PEER", "UNABLE TO CONNECT TO PEER" + peer.deviceName + " Reason is: " + reason);
+                    }
+                });
             }
-            catch (Error e) {
-                    Log.e("Send socket", "Failed to send msg");
+            catch (Error e){
+                Log.e("Connection", "not doing that for sure");
             }
+
         }
     }
 
-    public void sendState(View view) {
+    public void startGame(View view) {
+        Log.e(null, "Now starting the game");
         JSONObject msg;
         try {
-            msg = convertStateToJSON(players);
-            msg.put("type", "newState");
+            msg = convertStateToJSON(this.players);
+            msg.put("type", "startGame");
+            for (Player player : players) {
+                try {
+                    SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
+                    writer.execute();
+                }
+                catch (Error e) {
+                    Log.e("Send socket", "Failed to send msg");
+                }
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        for (Player player : players) {
-            try {
-                //manager.sendSocket(msg, player.getHost(), player.getPort());
+    }
+
+    public void sendState() {
+        Log.e(null, "Now trying to send the state");
+        JSONObject msg;
+        try {
+            msg = convertStateToJSON(this.players);
+            msg.put("type", "newState");
+            for (Player player : players) {
+                try {
+                    SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
+                    writer.execute();
+                }
+                catch (Error e) {
+                    Log.e("Send socket", "Failed to send msg");
+                }
             }
-            catch (Error e) {
-                Log.e("Send socket", "Failed to send msg");
-            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void joinGame(View view){
+        Log.e(null, "Now trying to join the game");
+
+        InetAddress hostAddress = ((WiFiDirectBroadcastReceiver)receiver).getGroupIP();
+
+        try {
+            JSONObject request = new JSONObject();
+            request.put("type", "joinGame");
+
+            // Sends request to join
+            SocketManager.SocketWrite writer = new SocketManager.SocketWrite(request, hostAddress);
+            writer.execute();
+
+        } catch (JSONException e) {
+            Log.e("JSONERROR", e.toString());
         }
     }
 
@@ -274,50 +337,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return state;
-    }
-
-    public void createGame(View view){
-        ArrayList<WifiP2pDevice> peerList = ((WiFiDirectBroadcastReceiver ) receiver).getListOfPeers();
-        for (WifiP2pDevice peer : peerList) {
-
-            // add exceptions
-            if (peer.primaryDeviceType.equals("7-0050F204-1") ||  peer.primaryDeviceType.equals("3-0050F204-1") || peer.deviceName.equals("DIRECT-63-HP DeskJet 2700 series"))
-                continue;
-
-            WifiP2pConfig config = new WifiP2pConfig();
-
-            // We want to be the group owner if we create the game
-            config.groupOwnerIntent = 15;
-            config.deviceAddress = peer.deviceAddress;
-
-            try {
-                manager.connect(channel, config, new WifiP2pManager.ActionListener() {
-
-                    @Override
-                    public void onSuccess() {
-                        Log.e("CONNECTION TO PEER", "SUCCESSFULLY CONNECTED TO PEER" + peer.deviceName);
-                    }
-
-                    @Override
-                    public void onFailure(int reason) {
-                        Log.e("CONNECTION TO PEER", "UNABLE TO CONNECT TO PEER" + peer.deviceName + " Reason is: " + reason);
-                    }
-                });
-            }
-            catch (Error e){
-                Log.e("Connection", "not doing that for sure");
-            }
-
-        }
-
-        Intent intent = new Intent(MainActivity.this, Lobby.class);
-        intent.putExtra("Receiver", (Parcelable) receiver);
-        startActivity(intent);
-    }
-
-    private void joinGame(View view){
-        Log.e(null, "Now trying to join the game");
-        ((WiFiDirectBroadcastReceiver )receiver).sendRequestToJoin();
     }
 
 }

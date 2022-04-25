@@ -33,19 +33,13 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
-    private MainActivity activity;
-    private ArrayList<Player> players;
     private boolean isConnected;
-
-    private static final int SERVER_PORT = 8888;
 
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
                                        MainActivity activity, ArrayList<Player> players) {
         super();
         this.manager = manager;
         this.channel = channel;
-        this.activity = activity;
-        this.players = players;
         isConnected = false;
     }
 
@@ -58,6 +52,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             Log.e("State is now: ", "" + state);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
+                manager.requestConnectionInfo(channel, connectionListener);
             } else {
             }
 
@@ -69,6 +64,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             if (manager != null) {
                 manager.requestPeers(channel, peerListListener);
             }
+            manager.requestConnectionInfo(channel, connectionListener);
 
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
 
@@ -82,32 +78,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    public ArrayList<Player> getPlayers(){
-        return players;
-    }
 
-    public void sendRequestToJoin() {
-
-        // We are connected with the other device, request connection
-        // info to find group owner IP
-        manager.requestConnectionInfo(channel, connectionListener);
-
-        if (isConnected) {
-
-            Log.e(null, "ConnectionListener executed");
-
-            try {
-                JSONObject request = new JSONObject();
-                request.put("type", "joinGame");
-
-                // Sends request to join
-                WiFiDirectBroadcastReceiver.SocketWrite writer = new WiFiDirectBroadcastReceiver.SocketWrite(request, hostAddress, SERVER_PORT);
-                writer.execute();
-            } catch (JSONException e) {
-                Log.e("JSONERROR", e.toString());
-            }
-        }
-    }
 
     private ArrayList<WifiP2pDevice> peers = new ArrayList<>();
 
@@ -137,115 +108,12 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         this.isConnected = info.groupFormed;
     };
 
-    private InetAddress getGroupIP(){
+    public InetAddress getGroupIP(){
         return hostAddress;
     }
 
-    public static class SocketWrite extends AsyncTask {
+    public boolean getConnectionStatus() { return isConnected;}
 
-        JSONObject json;
-        InetSocketAddress socketAddress;
 
-        public SocketWrite(JSONObject json, InetAddress host, int port){
-            this.json = json;
-            socketAddress = new InetSocketAddress(host, port);
-        }
-
-        @Override
-        protected Object doInBackground(Object[] objects) {
-
-            Socket socket = new Socket();
-
-            try {
-                socket.bind(null);
-                Log.e(null, "Now connecting to socket" + socketAddress.toString());
-                socket.connect(socketAddress, 500);
-
-                try (OutputStreamWriter out = new OutputStreamWriter(
-                        socket.getOutputStream(), Charset.forName("UTF-8"))) {
-                    out.write(json.toString());
-                }
-            } catch (IOException e) {
-                //catch logic
-            }
-
-            finally {
-                if (socket != null) {
-                    if (socket.isConnected()) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            //catch logic
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-    }
-
-    public static class SocketListen extends AsyncTask {
-
-        private Context context;
-        ArrayList<Player> players;
-
-        public SocketListen(Context context, ArrayList<Player> players){
-            this.context = context;
-            this.players = players;
-        }
-
-        @Override
-        protected Object doInBackground(Object[] objects) {
-            while(true) {
-                try {
-                    ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
-                    Log.e(null, "Now listening on port" + SERVER_PORT);
-                    Socket client = serverSocket.accept();
-                    InputStream inputStream = client.getInputStream();
-
-                    try{
-                        JSONObject message = inputStreamToJson(inputStream);
-                        Log.d("Message", "Received message: " + message.toString());
-                        String type = message.getString("type");
-                        switch(type){
-                            case "joinGame":
-                                addPlayerToGame(client.getInetAddress(), client.getPort());
-                                Log.e(null, "Player added");
-                                break;
-                            case "consensus":
-                                keepConsensus();
-                                break;
-                        }
-                    } catch (Exception e){
-                        Log.e("Socket received", "Invalid message received from socket." + e.toString());
-                    }
-
-                    return null;
-
-                } catch (IOException e) {
-                    return null;
-                }
-            }
-        }
-
-        private void addPlayerToGame(InetAddress host, int port){
-            Player newPlayer = new Player(false, new int[] {0,0}, host, port);
-            this.players.add(newPlayer);
-        }
-
-        private void keepConsensus(){
-            return;
-        }
-
-        private JSONObject inputStreamToJson(InputStream in) throws IOException, JSONException {
-            BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
-            StringBuilder responseStrBuilder = new StringBuilder();
-
-            String inputStr;
-            while ((inputStr = streamReader.readLine()) != null)
-                responseStrBuilder.append(inputStr);
-            return new JSONObject(responseStrBuilder.toString());
-        }
-    }
 
 }
