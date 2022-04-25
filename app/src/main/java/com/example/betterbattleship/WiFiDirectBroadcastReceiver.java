@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -108,6 +109,71 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
+
+    public void startGame() {
+        JSONObject msg;
+        try {
+            msg = convertStateToJSON(this.players);
+            msg.put("type", "startGame");
+            for (Player player : players) {
+                try {
+                    WiFiDirectBroadcastReceiver.SocketWrite writer = new WiFiDirectBroadcastReceiver.SocketWrite(msg, player.getHost(), player.port);
+                    writer.execute();
+                }
+                catch (Error e) {
+                    Log.e("Send socket", "Failed to send msg");
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendState() {
+        JSONObject msg;
+        try {
+            msg = convertStateToJSON(this.players);
+            msg.put("type", "newState");
+            for (Player player : players) {
+                try {
+                    WiFiDirectBroadcastReceiver.SocketWrite writer = new WiFiDirectBroadcastReceiver.SocketWrite(msg, player.getHost(), player.port);
+                    writer.execute();
+                }
+                catch (Error e) {
+                    Log.e("Send socket", "Failed to send msg");
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private JSONObject convertStateToJSON(ArrayList<Player> players){
+        JSONArray allDataArray = new JSONArray();
+
+        for(int i = 0; i < players.size(); i++) {
+            JSONObject eachData = new JSONObject();
+            try {
+                eachData.put("turn", players.get(i).getTurn());
+                eachData.put("coordinates", players.get(i).coordinates);
+                eachData.put("host", players.get(i).getHost());
+                eachData.put("port", players.get(i).getPort());
+            } catch ( JSONException e) {
+                e.printStackTrace();
+            }
+            allDataArray.put(eachData);
+        }
+
+        JSONObject state = new JSONObject();
+        try {
+            state.put("state", allDataArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return state;
+    }
+
     private ArrayList<WifiP2pDevice> peers = new ArrayList<>();
 
     private WifiP2pManager.PeerListListener peerListListener = peerList -> {
@@ -149,7 +215,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         return hostAddress;
     }
 
-    public static class SocketWrite extends AsyncTask {
+    public class SocketWrite extends AsyncTask {
 
         JSONObject json;
         InetSocketAddress socketAddress;
