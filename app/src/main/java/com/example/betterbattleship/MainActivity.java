@@ -37,6 +37,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.widget.Button;
 
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -293,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.e("CONNECTION TO PEER", "SUCCESSFULLY CONNECTED TO PEER" + peer.deviceName);
 
                         // create listener socket
-                        WiFiDirectBroadcastReceiver.SocketListen listener = new WiFiDirectBroadcastReceiver.SocketListen(getApplicationContext(), players);
+                        SocketManager.SocketListen listener = new SocketManager.SocketListen(getApplicationContext(), players);
                         listener.execute();
                     }
 
@@ -312,7 +313,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void joinGame(View view){
         Log.e(null, "Now trying to join the game");
-        ((WiFiDirectBroadcastReceiver )receiver).sendRequestToJoin();
+
+        InetAddress hostAddress = ((WiFiDirectBroadcastReceiver)receiver).getGroupIP();
+
+        try {
+            JSONObject request = new JSONObject();
+            request.put("type", "joinGame");
+
+            // Sends request to join
+            SocketManager.SocketWrite writer = new SocketManager.SocketWrite(request, hostAddress);
+            writer.execute();
+
+        } catch (JSONException e) {
+            Log.e("JSONERROR", e.toString());
+        }
     }
 
 }
