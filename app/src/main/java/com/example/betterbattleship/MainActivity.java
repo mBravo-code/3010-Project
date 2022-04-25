@@ -252,12 +252,42 @@ public class MainActivity extends AppCompatActivity {
 
     public void startGame(View view) {
         Log.e(null, "Now starting the game");
-        ((WiFiDirectBroadcastReceiver )receiver).startGame();
+        JSONObject msg;
+        try {
+            msg = convertStateToJSON(this.players);
+            msg.put("type", "startGame");
+            for (Player player : players) {
+                try {
+                    SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
+                    writer.execute();
+                }
+                catch (Error e) {
+                    Log.e("Send socket", "Failed to send msg");
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void sendState(View view) {
-        Log.e(null, "Now trying sending state");
-        ((WiFiDirectBroadcastReceiver )receiver).sendState();
+    public void sendState() {
+        Log.e(null, "Now trying to send the state");
+        JSONObject msg;
+        try {
+            msg = convertStateToJSON(this.players);
+            msg.put("type", "newState");
+            for (Player player : players) {
+                try {
+                    SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
+                    writer.execute();
+                }
+                catch (Error e) {
+                    Log.e("Send socket", "Failed to send msg");
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void joinGame(View view){
@@ -276,6 +306,32 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             Log.e("JSONERROR", e.toString());
         }
+    }
+
+    private JSONObject convertStateToJSON(ArrayList<Player> players){
+        JSONArray allDataArray = new JSONArray();
+
+        for(int i = 0; i < players.size(); i++) {
+            JSONObject eachData = new JSONObject();
+            try {
+                eachData.put("turn", players.get(i).getTurn());
+                eachData.put("coordinates", players.get(i).coordinates);
+                eachData.put("host", players.get(i).getHost());
+                eachData.put("port", players.get(i).getPort());
+            } catch ( JSONException e) {
+                e.printStackTrace();
+            }
+            allDataArray.put(eachData);
+        }
+
+        JSONObject state = new JSONObject();
+        try {
+            state.put("state", allDataArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return state;
     }
 
 }
