@@ -66,6 +66,7 @@ public class Lobby extends AppCompatActivity {
     }
 
     public void startGame(View view) {
+
         Log.e(null, "Now starting the game");
         JSONObject msg;
         try {
@@ -77,6 +78,8 @@ public class Lobby extends AppCompatActivity {
                 try {
                     SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
                     writer.execute();
+                    Intent intent = new Intent(this, GameActivity.class);
+                    startActivity(intent);
                 }
                 catch (Error e) {
                     Log.e("Send socket", "Failed to send msg");
