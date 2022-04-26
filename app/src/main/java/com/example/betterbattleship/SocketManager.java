@@ -106,7 +106,6 @@ public class SocketManager {
                 }
             };
             context.registerReceiver(broadcastReceiver, new IntentFilter("kill_game"));
-
             while(true) {
                 try {
                     ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
@@ -114,12 +113,12 @@ public class SocketManager {
                     Socket client = serverSocket.accept();
                     InputStream inputStream = client.getInputStream();
 
-                    try{
+                    try {
                         JSONObject message = inputStreamToJson(inputStream);
                         Log.d("Message", "Received message: " + message.toString());
                         String type = message.getString("type");
                         String hostname = client.getInetAddress().getHostName();
-                        switch(type){
+                        switch (type) {
                             case "joinGame":
                                 addPlayerToGame(hostname, client.getPort());
                                 Log.e(null, "Player added");
@@ -141,13 +140,13 @@ public class SocketManager {
                                 Intent endIntent = new Intent("kill_game");
                                 context.sendBroadcast(endIntent);
                         }
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         Log.e("Socket received", "Invalid message received from socket." + e.toString());
                     }
-
+                    serverSocket.close();
                 } catch (IOException e) {
+                    Log.e(null, e.toString());
                 }
-            return null;
             }
         }
 
@@ -204,6 +203,7 @@ public class SocketManager {
             ArrayList<Player> newState = getArrayListFromMessage(message);
             ArrayList<Player> oldState = PlayerListSingleton.getInstance().getPlayerList();
 
+
             for (Player p : oldState){
                 Player newPlayerState = getPlayerFromList(newState, p.getHost());
                 if(p.getCoordinates() != null && newPlayerState.getCoordinates() == null){
@@ -213,6 +213,8 @@ public class SocketManager {
             }
 
             PlayerListSingleton.getInstance().setPlayerList(newState);
+            Intent intent = new Intent("refresh_game");
+            context.sendBroadcast(intent);
         }
 
         private void startGameHandler(JSONObject message){
