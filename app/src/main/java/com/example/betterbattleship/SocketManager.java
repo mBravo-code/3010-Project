@@ -99,16 +99,6 @@ public class SocketManager {
         @Override
         protected Object doInBackground(Object[] objects) {
 
-            /*BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context arg0, Intent intent) {
-                    String action = intent.getAction();
-                    if (action.equals("kill_game")) {
-                        sendEndGame();
-                    }
-                }
-            };
-            context.registerReceiver(broadcastReceiver, new IntentFilter("kill_game"));*/
             while(true) {
                 try {
                     ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
@@ -150,24 +140,6 @@ public class SocketManager {
                 } catch (IOException e) {
                     Log.e(null, e.toString());
                 }
-            }
-        }
-
-        private void sendEndGame(){
-            JSONObject msg = new JSONObject();
-            try {
-                msg.put("type", "endGame");
-                for (Player player : PlayerListSingleton.getInstance().getPlayerList()) {
-                    try {
-                        SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
-                        writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    } catch (Error e) {
-                        Log.e("Send socket", "Failed to send msg");
-                    }
-                }
-            }
-            catch (Exception e){
-                Log.e(null, "Unable to send endgame");
             }
         }
 
