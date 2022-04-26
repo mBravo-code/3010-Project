@@ -172,28 +172,38 @@ public class GameActivity extends AppCompatActivity {
 
 
     private Player getThisPlayer() {
-
+        for(Player player: this.players){
+            if (player.getHost() == PlayerListSingleton.getInstance().getOwnHostName()){
+                return this.thisPlayer;
+            }
+        }
         return null;
     }
 
     private int getCurrentPosition(Player player) {
-        ArrayList<Player> players = PlayerListSingleton.getInstance().getPlayerList();
-        return -1;
+        int[] coords = player.getCoordinates();
+        return coords[0]*ITEMS_PER_ROW + coords[1];
     }
     private boolean getTurn(Player player){
-        return false;
+        return player.getTurn();
     }
-    private ArrayList<Integer> getEnemyPositions() {
-        return null;
+    private ArrayList<Integer> getEnemyPositions() { 
+        ArrayList<Integer> enemies = new ArrayList<Integer>();
+        for(Player player: this.players) {
+            if (player.getHost() != PlayerListSingleton.getInstance().getOwnHostName()) {
+                int[] coords = player.getCoordinates();
+                enemies.add(coords[0]*ITEMS_PER_ROW + coords[1]);
+            }
+        }
+        return enemies;
     }
     private void playerIsDead(){
+        sendState();
     }
 
-    private void updateTurn(){
-
-    }
 
     private void sendState() {
+        updateTurn();
         Log.e(null, "Now trying to send the state");
         JSONObject msg;
         try {
@@ -213,6 +223,22 @@ public class GameActivity extends AppCompatActivity {
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void updateTurn(){
+        int index = 0;
+        Player currPlayer = players.get(index);
+        while(currPlayer.getHost() != PlayerListSingleton.getInstance().getOwnHostName()){
+            index++;
+            currPlayer = players.get(index);
+        }
+        currPlayer.setTurn(false);
+        if(index < players.size()-1){
+            players.get(index+1).setTurn(true);
+        }
+        else{
+            players.get(0).setTurn(true);
         }
     }
 
