@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -253,42 +254,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void sendState() {
-        Log.e(null, "Now trying to send the state");
-        JSONObject msg;
-        try {
-            msg = convertStateToJSON(this.players);
-            msg.put("type", "newState");
-            for (Player player : players) {
-                try {
-                    SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
-                    writer.execute();
-                }
-                catch (Error e) {
-                    Log.e("Send socket", "Failed to send msg");
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void joinGame(View view){
         Log.e(null, "Now trying to join the game");
 
         InetAddress hostAddress = ((WiFiDirectBroadcastReceiver)receiver).getGroupIP();
+        Log.e("hostAddress", hostAddress.toString());
 
         try {
             JSONObject request = new JSONObject();
             request.put("type", "joinGame");
-
+            Log.e("Executing", hostAddress.toString());
             // Sends request to join
             SocketManager.SocketWrite writer = new SocketManager.SocketWrite(request, hostAddress);
-            writer.execute();
+            writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            Log.e("Executing", hostAddress.toString());
 
         } catch (JSONException e) {
             Log.e("JSONERROR", e.toString());
         }
+        Log.e("Message sent", hostAddress.toString());
     }
 
 }

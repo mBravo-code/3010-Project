@@ -23,11 +23,19 @@ public class Player {
         return coordinates;
     }
 
+    public void setCoordinates(int[] newCoodinates) {
+        this.coordinates = newCoodinates;
+    }
+
     public InetAddress getHost() {
         return host;
     }
 
     public int getPort() {
         return port;
+    }
+
+    public void killPlayer(){
+        coordinates = null;
     }
 }
