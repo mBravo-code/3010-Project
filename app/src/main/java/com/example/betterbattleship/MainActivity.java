@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void createGame(View view){
         ArrayList<WifiP2pDevice> peerList = ((WiFiDirectBroadcastReceiver ) receiver).getListOfPeers();
-        final String[] ownHost = {null};
+        String ownHost = null;
         for (WifiP2pDevice peer : peerList) {
 
             // add exceptions
@@ -245,9 +245,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         Log.e("CONNECTION TO PEER", "SUCCESSFULLY CONNECTED TO PEER" + peer.deviceName);
-                        if (ownHost[0] == null){
-                            ownHost[0] = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
-                        }
                     }
 
                     @Override
@@ -261,12 +258,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         // add self to playerlist:
-        Player selfPlayer = new Player(true, new int[] {0,0}, ownHost[0], SERVER_PORT);
-        PlayerListSingleton.getInstance().getPlayerList().add(selfPlayer);
-        PlayerListSingleton.getInstance().setOwnHostName(ownHost[0]);
+        if (((WiFiDirectBroadcastReceiver) receiver).isConnected()){
+            ownHost = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
+            Player selfPlayer = new Player(true, new int[] {0,0}, ownHost, SERVER_PORT);
+            PlayerListSingleton.getInstance().getPlayerList().add(selfPlayer);
+            PlayerListSingleton.getInstance().setOwnHostName(ownHost);
 
-        Intent intent = new Intent(this, Lobby.class);
-        startActivity(intent);
+            Intent intent = new Intent(this, Lobby.class);
+            startActivity(intent);
+        }
+        else {
+            Log.e(null, "Not connected to any peer");
+        }
     }
 
     private void joinGame(View view){

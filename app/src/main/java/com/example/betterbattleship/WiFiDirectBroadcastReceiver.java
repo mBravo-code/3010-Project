@@ -108,6 +108,10 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         this.isConnected = info.groupFormed;
     };
 
+    public boolean isConnected(){
+        return isConnected;
+    }
+
     public InetAddress getGroupIP(){
         return hostAddress;
     }

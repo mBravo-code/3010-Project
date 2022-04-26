@@ -16,7 +16,7 @@ public class utils {
             JSONObject eachData = new JSONObject();
             try {
                 eachData.put("turn", players.get(i).getTurn());
-                eachData.put("coordinates", players.get(i).coordinates);
+                eachData.put("coordinates", players.get(i).coordinates.toString());
                 eachData.put("host", players.get(i).getHost());
                 eachData.put("port", players.get(i).getPort());
             } catch ( JSONException e) {
