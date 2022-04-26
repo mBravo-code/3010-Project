@@ -226,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void createGame(View view){
         ArrayList<WifiP2pDevice> peerList = ((WiFiDirectBroadcastReceiver ) receiver).getListOfPeers();
+        final String[] ownHost = {null};
         for (WifiP2pDevice peer : peerList) {
 
             // add exceptions
@@ -244,6 +245,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         Log.e("CONNECTION TO PEER", "SUCCESSFULLY CONNECTED TO PEER" + peer.deviceName);
+                        if (ownHost[0] == null){
+                            ownHost[0] = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
+                        }
                     }
 
                     @Override
@@ -257,10 +261,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         // add self to playerlist:
-        String ownHost = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
-        Player selfPlayer = new Player(true, new int[] {0,0}, ownHost, SERVER_PORT);
+        Player selfPlayer = new Player(true, new int[] {0,0}, ownHost[0], SERVER_PORT);
         PlayerListSingleton.getInstance().getPlayerList().add(selfPlayer);
-        PlayerListSingleton.getInstance().setOwnHostName(ownHost);
+        PlayerListSingleton.getInstance().setOwnHostName(ownHost[0]);
 
         Intent intent = new Intent(this, Lobby.class);
         startActivity(intent);
@@ -270,21 +273,21 @@ public class MainActivity extends AppCompatActivity {
         Log.e(null, "Now trying to join the game");
 
         String hostAddress = ((WiFiDirectBroadcastReceiver)receiver).getGroupIP().getHostAddress();
-        Log.e("hostAddress", hostAddress.toString());
+        Log.e("hostAddress", hostAddress);
 
         try {
             JSONObject request = new JSONObject();
             request.put("type", "joinGame");
-            Log.e("Executing", hostAddress.toString());
+            Log.e("Executing", hostAddress);
             // Sends request to join
             SocketManager.SocketWrite writer = new SocketManager.SocketWrite(request, hostAddress);
             writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            Log.e("Executing", hostAddress.toString());
+            Log.e("Executing", hostAddress);
 
         } catch (JSONException e) {
             Log.e("JSONERROR", e.toString());
         }
-        Log.e("Message sent", hostAddress.toString());
+        Log.e("Message sent", hostAddress);
     }
 
 }
