@@ -4,11 +4,11 @@ import java.net.InetAddress;
 
 public class Player {
     boolean turn;
-    public int coordinates[];
-    InetAddress host;
+    public int[] coordinates;
+    String host;
     int port;
 
-    public Player(boolean turn, int coordinates[], InetAddress host, int port) {
+    public Player(boolean turn, int[] coordinates, String host, int port) {
         this.turn = turn;
         this.coordinates = coordinates;
         this.host = host;
@@ -23,7 +23,7 @@ public class Player {
         return coordinates;
     }
 
-    public InetAddress getHost() {
+    public String getHost() {
         return host;
     }
 
