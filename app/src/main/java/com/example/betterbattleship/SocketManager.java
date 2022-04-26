@@ -188,17 +188,23 @@ public class SocketManager {
 
                     int[] coordinatesArray = new int[2];
                     String stringCoords = personJson.getString("coordinates");
-                    String[] withoutbrack = stringCoords.split("\\[|\\]");
-                    String[] numberStrs = withoutbrack[1].split(",");
-                    coordinatesArray[0] = Integer.parseInt(numberStrs[0]);
-                    coordinatesArray[1] = Integer.parseInt(Character.toString(numberStrs[1].charAt(1)));
-                    Log.e("x", " " + coordinatesArray[0]);
-                    Log.e("y", " " + coordinatesArray[1]);
+                    if(stringCoords != null) {
+                        String[] withoutbrack = stringCoords.split("\\[|\\]");
+                        String[] numberStrs = withoutbrack[1].split(",");
+                        coordinatesArray[0] = Integer.parseInt(numberStrs[0]);
+                        coordinatesArray[1] = Integer.parseInt(Character.toString(numberStrs[1].charAt(1)));
+                    }
+                    else{
+                        coordinatesArray = null;
+                    }
 
                     String host = personJson.getString("host");
                     int port = personJson.getInt("port");
                     Player newPerson = new Player(turn, coordinatesArray, host, port);
                     newState.add(newPerson);
+
+
+
 
                 }
             }
@@ -247,7 +253,7 @@ public class SocketManager {
             JSONObject msg;
             try {
                 msg = convertStateToJSON(playerList);
-                msg.put("type", "newState");
+                msg.put("type", "consensus");
                 for (Player player : playerList) {
                     try {
                         SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());

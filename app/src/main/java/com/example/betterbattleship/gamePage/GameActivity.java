@@ -220,7 +220,12 @@ public class GameActivity extends AppCompatActivity {
 
     private int getCurrentPosition(Player player) {
         int[] coords = player.getCoordinates();
-        return coords[0]*ITEMS_PER_ROW + coords[1];
+        if(coords == null){
+            return -1;
+        }
+        else{
+            return coords[0]*ITEMS_PER_ROW + coords[1];
+        }
     }
     private boolean getTurn(Player player){
         return player.getTurn();
@@ -230,7 +235,10 @@ public class GameActivity extends AppCompatActivity {
         for(Player player: this.players) {
             if (player.getHost() != PlayerListSingleton.getInstance().getOwnHostName()) {
                 int[] coords = player.getCoordinates();
-                enemies.add(coords[0]*ITEMS_PER_ROW + coords[1]);
+                if(coords != null){
+                    enemies.add(coords[0]*ITEMS_PER_ROW + coords[1]);
+                }
+
             }
         }
         return enemies;
@@ -285,7 +293,7 @@ public class GameActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Enemy eliminated", Toast.LENGTH_SHORT).show();
             for(Player player:players){
                 int[] coord = player.getCoordinates();
-                if(coord[0] == selectedTile/ITEMS_PER_ROW && coord[1] == selectedTile%ITEMS_PER_ROW){
+                if(coord!=null && coord[0] == selectedTile/ITEMS_PER_ROW && coord[1] == selectedTile%ITEMS_PER_ROW){
                     player.killPlayer();
                 }
             }
@@ -298,7 +306,7 @@ public class GameActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Enemy eliminated", Toast.LENGTH_SHORT).show();
             for(Player player:players){
                 int[] coord = player.getCoordinates();
-                if(coord[0] == selectedTile/ITEMS_PER_ROW && coord[1] == selectedTile%ITEMS_PER_ROW){
+                if(coord!=null && coord[0] == selectedTile/ITEMS_PER_ROW && coord[1] == selectedTile%ITEMS_PER_ROW){
                     player.killPlayer();
                 }
             }
