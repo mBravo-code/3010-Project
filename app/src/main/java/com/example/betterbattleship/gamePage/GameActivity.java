@@ -53,7 +53,6 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         BroadcastReceiver playerDeadReceiver = new BroadcastReceiver() {
             @Override
@@ -173,8 +172,9 @@ public class GameActivity extends AppCompatActivity {
 
     private Player getThisPlayer() {
         for(Player player: this.players){
+            String host = PlayerListSingleton.getInstance().getOwnHostName();
             if (player.getHost() == PlayerListSingleton.getInstance().getOwnHostName()){
-                return this.thisPlayer;
+                return player;
             }
         }
         return null;
