@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -48,6 +50,8 @@ public class GameActivity extends AppCompatActivity {
     int currentPosition;
     private boolean isTurn;
     private ArrayList<Player> players = PlayerListSingleton.getInstance().getPlayerList();
+    TextView gameTextView = (TextView)findViewById(R.id.screen_textView);
+    boolean gameOver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +97,31 @@ public class GameActivity extends AppCompatActivity {
         this.currentPosition = getCurrentPosition(thisPlayer);
         this.isTurn = getTurn(thisPlayer);
         this.enemyPositions = getEnemyPositions();
+        this.isTurn = getTurn(thisPlayer);
+        this.gameOver = isGameOver();
+
+        if(gameOver){
+            if(isWinner()){
+                gameTextView.setText("Game Over: You Won!");
+            }
+            else{
+                gameTextView.setText("Game Over: You Lost");
+            }
+        }
+        else if(currentPosition == -1){
+            gameTextView.setText("Your have been eliminated");
+            if(isTurn){
+                playerIsDead();
+            }
+        }
+        else{
+            if(isTurn){
+                gameTextView.setText("Your turn");
+            }
+            else{
+                gameTextView.setText("Waiting for players to make move");
+            }
+        }
 
         initializeView();
     }
@@ -122,43 +151,44 @@ public class GameActivity extends AppCompatActivity {
         adapter = new GameViewAdapter(this, TOTAL_NUM_TILES, currentPosition);
         gameRecyclerView.setAdapter(adapter);
 
-        if(currentPosition == -1){
-            playerIsDead();
+
+        if(!gameOver) {
+            btnShoot = findViewById(R.id.btn_shoot);
+            btnMove = findViewById(R.id.btn_move);
+            btnShoot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isTurn) {
+                        if (adapter.getSelectedTile() > 0) {
+                            shoot(adapter.getSelectedTile());
+                        } else {
+                            Toast.makeText(getApplicationContext(), "No tile selected", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Not your turn", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            btnMove.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isTurn) {
+                        if (adapter.getSelectedTile() > 0) {
+                            move(adapter.getSelectedTile());
+                        } else {
+                            Toast.makeText(getApplicationContext(), "No tile selected", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Not your turn", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
-
-        btnShoot = findViewById(R.id.btn_shoot);
-        btnMove = findViewById(R.id.btn_move);
-        btnShoot.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(isTurn) {
-                    if (adapter.getSelectedTile() > 0) {
-                        shoot(adapter.getSelectedTile());
-                    } else {
-                        Toast.makeText(getApplicationContext(), "No tile selected", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "Not your turn", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        btnMove.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(isTurn) {
-                    if (adapter.getSelectedTile() > 0) {
-                        move(adapter.getSelectedTile());
-                    } else {
-                        Toast.makeText(getApplicationContext(), "No tile selected", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), "Not your turn", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        else{
+            //wait x seconds
+            finish();
+        }
     }
 
     @Override
@@ -271,5 +301,28 @@ public class GameActivity extends AppCompatActivity {
         sendState();
     }
 
+    private boolean isGameOver(){
+        int playersAlive = 0;
+        for(Player player:players){
+            if(player.getCoordinates() != null){
+                playersAlive++;
+            }
+        }
+        if(playersAlive >1){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+    private boolean isWinner(){
+        String ownHostName = PlayerListSingleton.getInstance().getOwnHostName();
 
+        for(Player player:players){
+            if (player.getHost().equals(ownHostName) && player.getCoordinates() != null){
+                return true;
+            }
+        }
+        return false;
+    }
 }
