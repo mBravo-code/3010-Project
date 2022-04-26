@@ -176,8 +176,6 @@ public class SocketManager {
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject personJson = array.getJSONObject(i);
                     boolean turn = personJson.getBoolean("turn");
-                    JSONArray coords = personJson.getJSONArray("coordinates2");
-                    Log.e("JSONARRAY", " " + coords.getInt(0));
 
                     int[] coordinatesArray = new int[2];
                     String stringCoords = personJson.getString("coordinates");
