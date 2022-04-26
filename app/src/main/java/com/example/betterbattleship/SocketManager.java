@@ -188,7 +188,7 @@ public class SocketManager {
 
                     int[] coordinatesArray = new int[2];
                     String stringCoords = personJson.getString("coordinates");
-                    if(stringCoords != null) {
+                    if(!stringCoords.equals("null")) {
                         String[] withoutbrack = stringCoords.split("\\[|\\]");
                         String[] numberStrs = withoutbrack[1].split(",");
                         coordinatesArray[0] = Integer.parseInt(numberStrs[0]);

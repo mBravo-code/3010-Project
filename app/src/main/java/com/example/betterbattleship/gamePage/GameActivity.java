@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import com.example.betterbattleship.MainActivity;
 import com.example.betterbattleship.Player;
 import com.example.betterbattleship.R;
 import com.example.betterbattleship.SocketManager;
@@ -193,6 +194,8 @@ public class GameActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 public void run() {
                     finish();
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
                 }
             }, 5000);
         }
