@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.Settings;
 import android.util.Log;
@@ -153,8 +154,13 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context arg0, Intent intent) {
                 String action = intent.getAction();
                 if (action.equals("do_consensus")) {
-                    MainActivity.Consensus c = new MainActivity.Consensus (getApplicationContext(), 5);
-                    c.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            MainActivity.Consensus c = new MainActivity.Consensus (getApplicationContext());
+                            c.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        }
+                    }, 1000);
                 }
             }
         };
@@ -285,23 +291,15 @@ public class MainActivity extends AppCompatActivity {
     public static class Consensus extends AsyncTask {
 
         private Context context;
-        private int sleepDuration;
 
-        public Consensus(Context context, int sleepDuration) {
+        public Consensus(Context context) {
             this.context = context;
-            this.sleepDuration = sleepDuration;
         }
 
         @Override
         protected Object doInBackground(Object[] objects) {
-            try {
-                Thread.sleep(sleepDuration);
-                if (isConsensusValid())
-                    return null;
-                else
-                    killGame();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (!isConsensusValid()){
+                killGame();
             }
             return null;
         }
@@ -315,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
                 if (traitorFound)
                     break;
                 ArrayList<Player> otherPlayerState = consensusList.get(key);
-                if (myState.equals(otherPlayerState))
+                if (!myState.equals(otherPlayerState))
                     traitorFound = true;
             }
             Log.e(null, "Traitor found? " + traitorFound);
