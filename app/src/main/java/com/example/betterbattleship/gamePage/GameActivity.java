@@ -85,6 +85,7 @@ public class GameActivity extends AppCompatActivity {
                 String action = intent.getAction();
                 if (action.equals("kill_game")) {
                     Toast.makeText(getApplicationContext(), "Game has ended.", Toast.LENGTH_SHORT).show();
+                    finish();
                 }
             }
         };
