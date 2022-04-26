@@ -52,6 +52,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import common.PlayerListSingleton;
+
 import static common.utils.convertStateToJSON;
 
 public class MainActivity extends AppCompatActivity {
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Wifi test=========";
     private int PERMISSIONS_REQUEST_LOCATION = 100;
-
+    private static final int SERVER_PORT = 8888;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -142,6 +144,9 @@ public class MainActivity extends AppCompatActivity {
         // create listener socket
         SocketManager.SocketListen listener = new SocketManager.SocketListen(getApplicationContext());
         listener.execute();
+
+        PlayerListSingleton.getInstance().initializePlayerList();
+        PlayerListSingleton.getInstance().initializeConsensus();
     }
 
     @Override
@@ -250,14 +255,21 @@ public class MainActivity extends AppCompatActivity {
             catch (Error e){
                 Log.e("Connection", "not doing that for sure");
             }
-
         }
+        // add self to playerlist:
+        String ownHost = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
+        Player selfPlayer = new Player(true, new int[] {0,0}, ownHost, SERVER_PORT);
+        PlayerListSingleton.getInstance().getPlayerList().add(selfPlayer);
+        PlayerListSingleton.getInstance().setOwnHostName(ownHost);
+
+        Intent intent = new Intent(this, Lobby.class);
+        startActivity(intent);
     }
 
     private void joinGame(View view){
         Log.e(null, "Now trying to join the game");
 
-        InetAddress hostAddress = ((WiFiDirectBroadcastReceiver)receiver).getGroupIP();
+        String hostAddress = ((WiFiDirectBroadcastReceiver)receiver).getGroupIP().getHostAddress();
         Log.e("hostAddress", hostAddress.toString());
 
         try {
