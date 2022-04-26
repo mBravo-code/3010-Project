@@ -13,8 +13,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.example.betterbattleship.gamePage.GameActivity;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -40,6 +42,7 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.net.InetAddress;
 import java.net.Socket;
@@ -76,6 +79,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        BroadcastReceiver startGameReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context arg0, @NonNull Intent intent) {
+                String action = intent.getAction();
+                if (action.equals("startGame")) {
+                    Intent gameItent = new Intent(getBaseContext(), GameActivity.class);
+                    startActivity(gameItent);
+                }
+            }
+        };
+        registerReceiver(startGameReceiver, new IntentFilter("startGame"));
         // Initialize wifi stuff
 
         // Manually request location permission. Needed to use discovery

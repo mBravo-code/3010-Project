@@ -27,6 +27,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Set;
@@ -175,21 +176,27 @@ public class SocketManager {
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject personJson = array.getJSONObject(i);
                     boolean turn = personJson.getBoolean("turn");
-                    int coordinatesArray[];
-                    if (personJson.isNull("coordinates")) {
-                        coordinatesArray = null;
-                    } else {
-                        JSONArray coordinates = personJson.getJSONArray("coordinates");
-                        coordinatesArray = new int[]{coordinates.getInt(0), coordinates.getInt(1)};
-                    }
+                    JSONArray coords = personJson.getJSONArray("coordinates2");
+                    Log.e("JSONARRAY", " " + coords.getInt(0));
+
+                    int[] coordinatesArray = new int[2];
+                    String stringCoords = personJson.getString("coordinates");
+                    String[] withoutbrack = stringCoords.split("\\[|\\]");
+                    String[] numberStrs = withoutbrack[1].split(",");
+                    coordinatesArray[0] = Integer.parseInt(numberStrs[0]);
+                    coordinatesArray[1] = Integer.parseInt(Character.toString(numberStrs[1].charAt(1)));
+                    Log.e("x", " " + coordinatesArray[0]);
+                    Log.e("y", " " + coordinatesArray[1]);
 
                     String host = personJson.getString("host");
                     int port = personJson.getInt("port");
                     Player newPerson = new Player(turn, coordinatesArray, host, port);
                     newState.add(newPerson);
+
                 }
             }
             catch( Exception e){
+                Log.e(null, e.toString());
                 Log.e(null, "Unable to arraylist from message");
             }
             return newState;
@@ -216,8 +223,9 @@ public class SocketManager {
                 PlayerListSingleton.getInstance().setOwnHostName(ownHostname);
                 ArrayList<Player> brandNewState = getArrayListFromMessage(message);
                 PlayerListSingleton.getInstance().setPlayerList(brandNewState);
-                Intent startGameIntent = new Intent("start_game");
+                Intent startGameIntent = new Intent("startGame");
                 context.sendBroadcast(startGameIntent);
+                Log.e(null, "Broadcast sent");
             }
             catch (Exception e){
                 Log.e(null, "Error getting hostname from jsonobject");

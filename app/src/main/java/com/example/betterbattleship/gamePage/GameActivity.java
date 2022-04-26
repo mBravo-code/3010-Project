@@ -173,7 +173,8 @@ public class GameActivity extends AppCompatActivity {
     private Player getThisPlayer() {
         for(Player player: this.players){
             String host = PlayerListSingleton.getInstance().getOwnHostName();
-            if (player.getHost() == PlayerListSingleton.getInstance().getOwnHostName()){
+
+            if (player.getHost().equals(PlayerListSingleton.getInstance().getOwnHostName())){
                 return player;
             }
         }

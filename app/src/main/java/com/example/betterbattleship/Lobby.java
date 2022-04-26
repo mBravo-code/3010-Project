@@ -47,16 +47,11 @@ public class Lobby extends AppCompatActivity {
                     finish();
                     startActivity(getIntent());
                 }
-                else if (action.equals("start_game")){
-                    Intent newIntent = new Intent(getBaseContext(), GameActivity.class);
-                    startActivity(newIntent);
-                }
             }
         };
 
         IntentFilter newIntentFilter = new IntentFilter();
         newIntentFilter.addAction("refresh_activity");
-        newIntentFilter.addAction("start_game");
         registerReceiver(broadcastReceiver, newIntentFilter);
 
         Button startButton = (Button) findViewById(R.id.StartGame);

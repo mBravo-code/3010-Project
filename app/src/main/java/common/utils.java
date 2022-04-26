@@ -18,7 +18,7 @@ public class utils {
             JSONObject eachData = new JSONObject();
             try {
                 eachData.put("turn", players.get(i).getTurn());
-                eachData.put("coordinates", Arrays.toString(players.get(i).coordinates);
+                eachData.put("coordinates", Arrays.toString(players.get(i).coordinates));
                 eachData.put("host", players.get(i).getHost());
                 eachData.put("port", players.get(i).getPort());
             } catch ( JSONException e) {
@@ -40,7 +40,7 @@ public class utils {
     public static Player getPlayerFromList(ArrayList<Player> listOfPlayers, String hostname){
         Player found = null;
         for (Player p : listOfPlayers){
-            if(p.getHost() == hostname){
+            if(p.getHost().equals(hostname)){
                 found = p;
                 break;
             }
