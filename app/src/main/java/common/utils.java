@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
 
 public class utils {
     public static JSONObject convertStateToJSON(ArrayList<Player> players){
@@ -16,7 +18,7 @@ public class utils {
             JSONObject eachData = new JSONObject();
             try {
                 eachData.put("turn", players.get(i).getTurn());
-                eachData.put("coordinates", players.get(i).coordinates.toString());
+                eachData.put("coordinates", Arrays.toString(players.get(i).coordinates);
                 eachData.put("host", players.get(i).getHost());
                 eachData.put("port", players.get(i).getPort());
             } catch ( JSONException e) {
