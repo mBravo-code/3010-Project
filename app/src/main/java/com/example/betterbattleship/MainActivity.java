@@ -294,8 +294,7 @@ public class MainActivity extends AppCompatActivity {
         // add self to playerlist:
         if (((WiFiDirectBroadcastReceiver) receiver).isConnected()){
             ownHost = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
-            Player selfPlayer = new Player(true, new int[] {0,0}, ownHost, SERVER_PORT);
-            PlayerListSingleton.getInstance().getPlayerList().add(selfPlayer);
+            PlayerListSingleton.getInstance().addNewPlayer(ownHost, SERVER_PORT);
             PlayerListSingleton.getInstance().setOwnHostName(ownHost);
 
             Intent intent = new Intent(this, Lobby.class);

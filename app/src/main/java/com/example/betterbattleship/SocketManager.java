@@ -269,8 +269,7 @@ public class SocketManager {
         }
 
         private void addPlayerToGame(String host, int port){
-            Player newPlayer = new Player(false, new int[] {0,0}, host, port);
-            PlayerListSingleton.getInstance().getPlayerList().add(newPlayer);
+            PlayerListSingleton.getInstance().addNewPlayer(host, port);
             refreshActivity();
         }
 
