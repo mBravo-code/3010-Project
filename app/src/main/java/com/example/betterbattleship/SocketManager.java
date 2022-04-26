@@ -274,7 +274,7 @@ public class SocketManager {
 
         @RequiresApi(api = Build.VERSION_CODES.N)
         private void modifyConsensus(String source, ArrayList<Player> state){
-            PlayerListSingleton.getInstance().getConsensus().replace(source, state);
+            PlayerListSingleton.getInstance().getConsensus().put(source, state);
         }
 
         private JSONObject inputStreamToJson(InputStream in) throws IOException, JSONException {

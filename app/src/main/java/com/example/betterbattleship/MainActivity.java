@@ -307,24 +307,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private boolean isConsensusValid() {
-            Hashtable<String, ArrayList<Player>> stateList = PlayerListSingleton.getInstance().getConsensus();
-            Set<String> setOfKeys = stateList.keySet();
-            ArrayList<Player> masterList = null;
+            ArrayList<Player> myState = PlayerListSingleton.getInstance().getPlayerList();
+            Hashtable<String, ArrayList<Player>> consensusList = PlayerListSingleton.getInstance().getConsensus();
+            Set<String> setOfKeys = consensusList.keySet();
             boolean traitorFound = false;
             for (String key : setOfKeys) {
                 if (traitorFound)
                     break;
-                if (masterList == null) {
-                    masterList = stateList.get(key);
-                } else {
-                    ArrayList<Player> currentList = stateList.get(key);
-                    for (Player p : masterList) {
-                        Player myVersion = getPlayerFromList(currentList, p.getHost());
-                        if (p.getCoordinates() != myVersion.getCoordinates())
-                            traitorFound = true;
-                    }
-                }
+                ArrayList<Player> otherPlayerState = consensusList.get(key);
+                if (myState.equals(otherPlayerState))
+                    traitorFound = true;
             }
+            Log.e(null, "Traitor found? " + traitorFound);
             return !traitorFound;
         }
 
