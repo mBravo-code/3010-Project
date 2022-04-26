@@ -50,13 +50,14 @@ public class GameActivity extends AppCompatActivity {
     int currentPosition;
     private boolean isTurn;
     private ArrayList<Player> players = PlayerListSingleton.getInstance().getPlayerList();
-    TextView gameTextView = (TextView)findViewById(R.id.screen_textView);
+    TextView gameTextView;
     boolean gameOver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        gameTextView = (TextView)findViewById(R.id.screen_textView);
 
         BroadcastReceiver playerDeadReceiver = new BroadcastReceiver() {
             @Override
@@ -193,7 +194,6 @@ public class GameActivity extends AppCompatActivity {
                     finish();
                 }
             }, 5000);
-
         }
     }
 
