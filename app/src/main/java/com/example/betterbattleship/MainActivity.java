@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
         // create listener socket
         SocketManager.SocketListen listener = new SocketManager.SocketListen(getApplicationContext());
-        listener.execute();
+        listener.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         PlayerListSingleton.getInstance().initializePlayerList();
         PlayerListSingleton.getInstance().initializeConsensus();

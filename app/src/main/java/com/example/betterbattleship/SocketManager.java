@@ -167,7 +167,7 @@ public class SocketManager {
                 for (Player player : PlayerListSingleton.getInstance().getPlayerList()) {
                     try {
                         SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
-                        writer.execute();
+                        writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     } catch (Error e) {
                         Log.e("Send socket", "Failed to send msg");
                     }
@@ -251,7 +251,7 @@ public class SocketManager {
                 for (Player player : playerList) {
                     try {
                         SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
-                        writer.execute();
+                        writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
                     catch (Error e) {
                         Log.e("Send socket", "Failed to send msg");
