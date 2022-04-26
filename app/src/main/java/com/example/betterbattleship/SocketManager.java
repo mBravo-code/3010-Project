@@ -56,6 +56,9 @@ public class SocketManager {
 
             Socket socket = new Socket();
 
+            if (socketAddress.getHostName().equals(PlayerListSingleton.getInstance().getOwnHostName()))
+                return null;
+
             try {
                 socket.bind(null);
                 Log.e(null, "Now connecting to socket" + socketAddress.toString());
@@ -64,6 +67,7 @@ public class SocketManager {
                 try (OutputStreamWriter out = new OutputStreamWriter(
                         socket.getOutputStream(), Charset.forName("UTF-8"))) {
                     out.write(json.toString());
+                    Log.e(null, "Wrote " + json.toString() + " to " + socketAddress);
                 }
             } catch (IOException e) {
                 //catch logic
@@ -146,8 +150,9 @@ public class SocketManager {
                     }
 
                 } catch (IOException e) {
+                    Log.e(null, "IOEXCEPTION " + e.toString());
                 }
-            return null;
+                return null;
             }
         }
 
@@ -213,6 +218,8 @@ public class SocketManager {
             }
 
             PlayerListSingleton.getInstance().setPlayerList(newState);
+            Intent intent = new Intent("refresh_game");
+            context.sendBroadcast(intent);
         }
 
         private void startGameHandler(JSONObject message){
