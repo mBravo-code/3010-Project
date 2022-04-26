@@ -4,13 +4,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
-import androidx.loader.content.AsyncTaskLoader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,16 +19,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Set;
 
 import common.PlayerListSingleton;
 
@@ -73,10 +66,10 @@ public class SocketManager {
                     Log.e(null, "Wrote " + json.toString() + " to " + socketAddress);
                 }
                 catch (Exception e) {
-                    Log.e(null, "Exception occured " + e.toString());
+                    Log.e(null, "Exception occurred " + e.toString());
                 }
             } catch (Exception e) {
-                Log.e(null, "Exception occured " + e.toString());
+                Log.e(null, "Exception occurred " + e.toString());
             }
 
             finally {
@@ -106,7 +99,7 @@ public class SocketManager {
         @Override
         protected Object doInBackground(Object[] objects) {
 
-            BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+            /*BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context arg0, Intent intent) {
                     String action = intent.getAction();
@@ -115,7 +108,7 @@ public class SocketManager {
                     }
                 }
             };
-            context.registerReceiver(broadcastReceiver, new IntentFilter("kill_game"));
+            context.registerReceiver(broadcastReceiver, new IntentFilter("kill_game"));*/
             while(true) {
                 try {
                     ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
@@ -139,7 +132,7 @@ public class SocketManager {
                                 break;
                             case "newState":
                                 replaceState(message);
-                                sendConsensus();
+                                sendConsensus(hostname);
                                 Intent consensusIntent = new Intent("do_consensus");
                                 context.sendBroadcast(consensusIntent);
                                 break;
@@ -202,14 +195,11 @@ public class SocketManager {
                     int port = personJson.getInt("port");
                     Player newPerson = new Player(turn, coordinatesArray, host, port);
                     newState.add(newPerson);
-
-
-
                 }
             }
             catch( Exception e){
                 Log.e(null, e.toString());
-                Log.e(null, "Unable to arraylist from message");
+                Log.e(null, "Unable to create arraylist from message");
             }
             return newState;
         }
@@ -247,13 +237,16 @@ public class SocketManager {
             }
         }
 
-        private void sendConsensus(){
+        private void sendConsensus(String hostname){
             ArrayList<Player> playerList = PlayerListSingleton.getInstance().getPlayerList();
             JSONObject msg;
             try {
                 msg = convertStateToJSON(playerList);
                 msg.put("type", "consensus");
                 for (Player player : playerList) {
+                    // Dont send consensus to person that sent newstate
+                    if(player.getHost().equals(hostname))
+                        continue;
                     try {
                         SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
                         writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);

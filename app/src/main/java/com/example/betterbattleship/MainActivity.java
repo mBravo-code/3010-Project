@@ -1,20 +1,16 @@
 package com.example.betterbattleship;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.example.betterbattleship.gamePage.GameActivity;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -28,27 +24,18 @@ import android.view.View;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.example.betterbattleship.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
 
 import android.content.BroadcastReceiver;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.net.InetAddress;
-import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
 
@@ -58,8 +45,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import common.PlayerListSingleton;
-
-import static common.utils.getPlayerFromList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -309,6 +294,11 @@ public class MainActivity extends AppCompatActivity {
             Hashtable<String, ArrayList<Player>> consensusList = PlayerListSingleton.getInstance().getConsensus();
             Set<String> setOfKeys = consensusList.keySet();
             boolean traitorFound = false;
+            Log.e(null, "My state is: " + myState.toString());
+            Enumeration<String> keys = consensusList.keys();
+            while(keys.hasMoreElements()){
+                Log.e(null, "consensus list is: " + consensusList.get(keys.nextElement()));
+            }
             for (String key : setOfKeys) {
                 if (traitorFound)
                     break;
