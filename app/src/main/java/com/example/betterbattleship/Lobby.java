@@ -8,9 +8,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.betterbattleship.gamePage.GameActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,7 +48,7 @@ public class Lobby extends AppCompatActivity {
                     startActivity(getIntent());
                 }
                 else if (action.equals("start_game")){
-                    Intent newIntent = new Intent(this, GameActivity.class);
+                    Intent newIntent = new Intent(getBaseContext(), GameActivity.class);
                     startActivity(newIntent);
                 }
             }
@@ -55,9 +60,9 @@ public class Lobby extends AppCompatActivity {
         registerReceiver(broadcastReceiver, newIntentFilter);
 
         Button startButton = (Button) findViewById(R.id.StartGame);
-        startButton.setOnClickListener(v -> {startGame(v);});
+        startButton.setOnClickListener(view -> startGame(view));
 
-        populatePlayerList(playerList);
+        populatePlayerList();
     }
 
     public void startGame(View view) {
@@ -82,8 +87,15 @@ public class Lobby extends AppCompatActivity {
         }
     }
 
-    public void populatePlayerList(ArrayList<Player> playerList){
-        //TableLayout tableLayout = findViewById(R.id.table)
+    public void populatePlayerList(){
+        TableLayout tableLayout = findViewById(R.id.Player_Table);
+        for (Player p : playerList) {
+            TableRow newRow = new TableRow(this);
+            TextView playerNameView = new TextView(this);
+            playerNameView.setText(p.getHost());
+            newRow.addView(playerNameView);
+            tableLayout.addView(newRow);
+        }
     }
 
 }
