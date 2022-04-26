@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(startGameReceiver, new IntentFilter("startGame"));
-        // Initialize wifi stuff
 
         // Manually request location permission. Needed to use discovery
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
@@ -142,10 +141,10 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
-        Button hostButton = (Button) findViewById(R.id.HostButton);
+        Button hostButton = findViewById(R.id.HostButton);
         hostButton.setOnClickListener(v -> createGame(v));
 
-        Button joinButton = (Button) findViewById(R.id.JoinButton);
+        Button joinButton = findViewById(R.id.JoinButton);
         joinButton.setOnClickListener(v -> joinGame(v));
 
         // create listener socket
@@ -169,35 +168,6 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter newIntentFilter = new IntentFilter();
         newIntentFilter.addAction("do_consensus");
         registerReceiver(broadcastReceiver, newIntentFilter);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
     }
 
     /* register the broadcast receiver with the intent values to be matched */
@@ -248,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void createGame(View view){
         ArrayList<WifiP2pDevice> peerList = ((WiFiDirectBroadcastReceiver ) receiver).getListOfPeers();
-        String ownHost = null;
+        String ownHost;
         for (WifiP2pDevice peer : peerList) {
 
             // add exceptions
