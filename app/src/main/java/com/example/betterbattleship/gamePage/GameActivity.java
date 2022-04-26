@@ -230,7 +230,7 @@ public class GameActivity extends AppCompatActivity {
     private void updateTurn(){
         int index = 0;
         Player currPlayer = players.get(index);
-        while(currPlayer.getHost() != PlayerListSingleton.getInstance().getOwnHostName()){
+        while(!currPlayer.getHost().equals(PlayerListSingleton.getInstance().getOwnHostName())){
             index++;
             currPlayer = players.get(index);
         }
