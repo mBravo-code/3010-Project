@@ -52,27 +52,22 @@ import java.util.Hashtable;
 import java.util.Set;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.Manifest.permission.CHANGE_WIFI_STATE;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import common.PlayerListSingleton;
 
-import static common.utils.convertStateToJSON;
 import static common.utils.getPlayerFromList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
 
     WifiP2pManager manager;
     Channel channel;
     BroadcastReceiver receiver;
     IntentFilter intentFilter;
-    ArrayList<Player> players;
 
     private static final String TAG = "Wifi test=========";
     private int PERMISSIONS_REQUEST_LOCATION = 100;
@@ -134,12 +129,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Everything down here is boilerplate stuff
+        // Adds the header
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
+
 
         Button hostButton = findViewById(R.id.HostButton);
         hostButton.setOnClickListener(v -> createGame(v));
