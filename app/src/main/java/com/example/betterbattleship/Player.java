@@ -1,5 +1,8 @@
 package com.example.betterbattleship;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class Player {
     boolean turn;
     public int[] coordinates;
@@ -39,4 +42,13 @@ public class Player {
     public void killPlayer(){
         coordinates = null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return turn == player.turn && port == player.port && Arrays.equals(coordinates, player.coordinates) && host.equals(player.host);
+    }
+
 }
