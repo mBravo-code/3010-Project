@@ -49,15 +49,18 @@ public class SocketManager {
         public SocketWrite(JSONObject json, String host){
             this.json = json;
             socketAddress = new InetSocketAddress(host, SERVER_PORT);
+            Log.e(null, "Spawned an socket writer in one of the threads");
         }
 
         @Override
         protected Object doInBackground(Object[] objects) {
-
+            Log.e(null, "Writer thread executed");
             Socket socket = new Socket();
 
-            if (socketAddress.getHostName().equals(PlayerListSingleton.getInstance().getOwnHostName()))
+            if (socketAddress.getHostName().equals(PlayerListSingleton.getInstance().getOwnHostName())) {
+                Log.e(null, "Trying to send message to self");
                 return null;
+            }
 
             try {
                 socket.bind(null);
@@ -69,8 +72,11 @@ public class SocketManager {
                     out.write(json.toString());
                     Log.e(null, "Wrote " + json.toString() + " to " + socketAddress);
                 }
-            } catch (IOException e) {
-                //catch logic
+                catch (Exception e) {
+                    Log.e(null, "Exception occured " + e.toString());
+                }
+            } catch (Exception e) {
+                Log.e(null, "Exception occured " + e.toString());
             }
 
             finally {
@@ -135,7 +141,7 @@ public class SocketManager {
                                 replaceState(message);
                                 sendConsensus();
                                 Consensus c = new Consensus(context, 5);
-                                c.execute();
+                                c.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                                 break;
                             case "startGame":
                                 startGameHandler(message);

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -71,10 +72,9 @@ public class Lobby extends AppCompatActivity {
                 msg.put("hostname", player.getHost());
                 Log.e(null, "Adding player" + player.toString());
                 try {
+                    Log.e(null, "Message prepared is " + msg.toString());
                     SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
-                    writer.execute();
-                    Intent intent = new Intent(this, GameActivity.class);
-                    startActivity(intent);
+                    writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);;
                 }
                 catch (Error e) {
                     Log.e("Send socket", "Failed to send msg");
@@ -83,6 +83,8 @@ public class Lobby extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Intent intent = new Intent(this, GameActivity.class);
+        startActivity(intent);
     }
 
     public void populatePlayerList(){

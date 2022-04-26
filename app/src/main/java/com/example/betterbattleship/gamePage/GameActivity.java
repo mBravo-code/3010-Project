@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -249,7 +250,7 @@ public class GameActivity extends AppCompatActivity {
             for (Player player : players) {
                 try {
                     SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
-                    writer.execute();
+                    writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
                     Intent intent = new Intent("refresh_game");
                     this.sendBroadcast(intent);
