@@ -1,7 +1,6 @@
 package com.example.betterbattleship;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class Player {
     boolean turn;
@@ -51,4 +50,13 @@ public class Player {
         return turn == player.turn && port == player.port && Arrays.equals(coordinates, player.coordinates) && host.equals(player.host);
     }
 
+    @Override
+    public String toString() {
+        return "Player{" +
+                "turn=" + turn +
+                ", coordinates=" + Arrays.toString(coordinates) +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                '}';
+    }
 }
