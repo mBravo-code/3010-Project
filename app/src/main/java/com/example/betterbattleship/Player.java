@@ -27,7 +27,7 @@ public class Player {
         this.coordinates = newCoodinates;
     }
 
-    public InetAddress getHost() {
+    public String getHost() {
         return host;
     }
 

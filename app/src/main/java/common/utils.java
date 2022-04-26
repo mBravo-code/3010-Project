@@ -34,4 +34,15 @@ public class utils {
 
         return state;
     }
+
+    public static Player getPlayerFromList(ArrayList<Player> listOfPlayers, String hostname){
+        Player found = null;
+        for (Player p : listOfPlayers){
+            if(p.getHost() == hostname){
+                found = p;
+                break;
+            }
+        }
+        return found;
+    }
 }

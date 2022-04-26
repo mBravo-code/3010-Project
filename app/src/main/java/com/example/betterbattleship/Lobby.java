@@ -32,6 +32,8 @@ public class Lobby extends AppCompatActivity {
 
         playerList = PlayerListSingleton.getInstance().getPlayerList();
 
+        Log.e(null, "Playerlist is now: " + playerList.toString());
+
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context arg0, Intent intent) {
@@ -40,12 +42,22 @@ public class Lobby extends AppCompatActivity {
                     finish();
                     startActivity(getIntent());
                 }
+                else if (action.equals("start_game")){
+                    Intent newIntent = new Intent(this, GameActivity.class);
+                    startActivity(newIntent);
+                }
             }
         };
-        registerReceiver(broadcastReceiver, new IntentFilter("refresh_activity"));
+
+        IntentFilter newIntentFilter = new IntentFilter();
+        newIntentFilter.addAction("refresh_activity");
+        newIntentFilter.addAction("start_game");
+        registerReceiver(broadcastReceiver, newIntentFilter);
 
         Button startButton = (Button) findViewById(R.id.StartGame);
         startButton.setOnClickListener(v -> {startGame(v);});
+
+        populatePlayerList(playerList);
     }
 
     public void startGame(View view) {
@@ -55,6 +67,8 @@ public class Lobby extends AppCompatActivity {
             msg = convertStateToJSON(playerList);
             msg.put("type", "startGame");
             for (Player player : playerList) {
+                msg.put("hostname", player.getHost());
+                Log.e(null, "Adding player" + player.toString());
                 try {
                     SocketManager.SocketWrite writer = new SocketManager.SocketWrite(msg, player.getHost());
                     writer.execute();
@@ -66,6 +80,10 @@ public class Lobby extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void populatePlayerList(ArrayList<Player> playerList){
+        //TableLayout tableLayout = findViewById(R.id.table)
     }
 
 }
