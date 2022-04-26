@@ -42,6 +42,7 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.net.InetAddress;
