@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         // add self to playerlist:
-        if (((WiFiDirectBroadcastReceiver) receiver).isConnected()){
+        if (((WiFiDirectBroadcastReceiver) receiver).isConnected()) {
             ownHost = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
             PlayerListSingleton.getInstance().addNewPlayer(ownHost, SERVER_PORT);
             PlayerListSingleton.getInstance().setOwnHostName(ownHost);
@@ -299,29 +299,34 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
         else {
-            Log.e(null, "Not connected to any peer");
+            Toast.makeText(getApplicationContext(), "No devices connected to your network", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void joinGame(View view){
         Log.e(null, "Now trying to join the game");
 
-        String hostAddress = ((WiFiDirectBroadcastReceiver)receiver).getGroupIP().getHostAddress();
-        Log.e("hostAddress", hostAddress);
+        if(((WiFiDirectBroadcastReceiver)receiver).getGroupIP() != null) {
+            String hostAddress = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
+            Log.e("hostAddress", hostAddress);
 
-        try {
-            JSONObject request = new JSONObject();
-            request.put("type", "joinGame");
-            Log.e("Executing", hostAddress);
-            // Sends request to join
-            SocketManager.SocketWrite writer = new SocketManager.SocketWrite(request, hostAddress);
-            writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            Log.e("Executing", hostAddress);
+            try {
+                JSONObject request = new JSONObject();
+                request.put("type", "joinGame");
+                Log.e("Executing", hostAddress);
+                // Sends request to join
+                SocketManager.SocketWrite writer = new SocketManager.SocketWrite(request, hostAddress);
+                writer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                Log.e("Executing", hostAddress);
 
-        } catch (JSONException e) {
-            Log.e("JSONERROR", e.toString());
+            } catch (JSONException e) {
+                Log.e("JSONERROR", e.toString());
+            }
+            Toast.makeText(getApplicationContext(), "Waiting for host to start game", Toast.LENGTH_SHORT).show();
         }
-        Log.e("Message sent", hostAddress);
+        else{
+            Toast.makeText(getApplicationContext(), "No games currently being hosted", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public static class Consensus extends AsyncTask {
