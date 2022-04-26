@@ -290,17 +290,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         // add self to playerlist:
-        if (((WiFiDirectBroadcastReceiver) receiver).isConnected()) {
-            ownHost = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
-            PlayerListSingleton.getInstance().addNewPlayer(ownHost, SERVER_PORT);
-            PlayerListSingleton.getInstance().setOwnHostName(ownHost);
+        ownHost = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
+        PlayerListSingleton.getInstance().addNewPlayer(ownHost, SERVER_PORT);
+        PlayerListSingleton.getInstance().setOwnHostName(ownHost);
 
-            Intent intent = new Intent(this, Lobby.class);
-            startActivity(intent);
-        }
-        else {
-            Toast.makeText(getApplicationContext(), "No devices connected to your network", Toast.LENGTH_SHORT).show();
-        }
+        Intent intent = new Intent(this, Lobby.class);
+        startActivity(intent);
     }
 
     private void joinGame(View view){
