@@ -243,6 +243,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Connection", "not doing that for sure");
             }
         }
+
+        if (!((WiFiDirectBroadcastReceiver) receiver).isConnected())
+            return;
+
         // add self to playerlist:
         ownHost = ((WiFiDirectBroadcastReceiver) receiver).getGroupIP().getHostAddress();
         PlayerListSingleton.getInstance().addNewPlayer(ownHost, SERVER_PORT);
