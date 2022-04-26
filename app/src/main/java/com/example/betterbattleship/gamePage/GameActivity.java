@@ -187,8 +187,13 @@ public class GameActivity extends AppCompatActivity {
             });
         }
         else{
-            //wait x seconds
-            finish();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    finish();
+                }
+            }, 5000);
+
         }
     }
 
