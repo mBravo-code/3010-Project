@@ -140,8 +140,8 @@ public class SocketManager {
                             case "newState":
                                 replaceState(message);
                                 sendConsensus();
-                                Consensus c = new Consensus(context, 5);
-                                c.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                                Intent consensusIntent = new Intent("do_consensus");
+                                context.sendBroadcast(consensusIntent);
                                 break;
                             case "startGame":
                                 startGameHandler(message);
@@ -293,59 +293,5 @@ public class SocketManager {
             Intent intent = new Intent("refresh_activity");
             context.sendBroadcast(intent);
         }
-    }
-
-    public static class Consensus extends AsyncTask {
-
-        private Context context;
-        private int sleepDuration;
-
-        public Consensus(Context context, int sleepDuration) {
-            this.context = context;
-            this.sleepDuration = sleepDuration;
-        }
-
-        @Override
-        protected Object doInBackground(Object[] objects) {
-            try {
-                Thread.sleep(sleepDuration);
-                if(isConsensusValid())
-                    return null;
-                else
-                    killGame();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        private boolean isConsensusValid(){
-            Hashtable<String, ArrayList<Player>> stateList = PlayerListSingleton.getInstance().getConsensus();
-            Set<String> setOfKeys = stateList.keySet();
-            ArrayList<Player> masterList = null;
-            boolean traitorFound = false;
-            for (String key : setOfKeys){
-                if (traitorFound)
-                    break;
-                if(masterList == null) {
-                    masterList = stateList.get(key);
-                }
-                else{
-                    ArrayList<Player> currentList = stateList.get(key);
-                    for (Player p : masterList) {
-                        Player myVersion = getPlayerFromList(currentList, p.getHost());
-                        if (p.getCoordinates() != myVersion.getCoordinates())
-                            traitorFound = true;
-                    }
-                }
-            }
-            return !traitorFound;
-        }
-
-        private void killGame() {
-            Intent intent = new Intent("kill_game");
-            context.sendBroadcast(intent);
-        }
-
     }
 }

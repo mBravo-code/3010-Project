@@ -21,6 +21,11 @@ public class PlayerListSingleton {
     public void setOwnHostName(String newHostName) {ownHostName = newHostName;}
     public String getOwnHostName() {return ownHostName;}
 
+    private ArrayList<Integer> lastPositions;
+    public void initializeLastPositions() {lastPositions = new ArrayList<>();}
+    public ArrayList<Integer> getLastPositions() {return lastPositions;}
+    public void setLastPositions(ArrayList<Integer> newLastPositions) {lastPositions = newLastPositions;}
+
     private static final PlayerListSingleton singleton = new PlayerListSingleton();
 
     public static PlayerListSingleton getInstance() {return singleton;}

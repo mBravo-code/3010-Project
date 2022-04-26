@@ -152,7 +152,7 @@ public class GameActivity extends AppCompatActivity {
         layoutManager = new GridLayoutManager(this, ITEMS_PER_ROW);
         gameRecyclerView.setLayoutManager(layoutManager);
 
-        adapter = new GameViewAdapter(this, TOTAL_NUM_TILES, currentPosition);
+        adapter = new GameViewAdapter(this, TOTAL_NUM_TILES, this.currentPosition, PlayerListSingleton.getInstance().getLastPositions());
         gameRecyclerView.setAdapter(adapter);
 
 
@@ -253,6 +253,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void sendState() {
         updateTurn();
+        PlayerListSingleton.getInstance().setLastPositions(getEnemyPositions());
         Log.e(null, "Now trying to send the state");
         JSONObject msg;
         try {

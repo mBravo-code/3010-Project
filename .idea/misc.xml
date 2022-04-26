@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-v24/available_seat.xml" value="0.223" />
+        <entry key="app/src/main/res/drawable-v24/last_seat.xml" value="0.223" />
         <entry key="app/src/main/res/drawable-v24/reserved_seat.xml" value="0.223" />
         <entry key="app/src/main/res/drawable-v24/selected_seat.xml" value="0.223" />
         <entry key="app/src/main/res/layout/activity_game.xml" value="0.22192028985507245" />

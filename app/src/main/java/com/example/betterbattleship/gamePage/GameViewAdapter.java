@@ -22,17 +22,19 @@ public class GameViewAdapter extends RecyclerView.Adapter<GameViewHolder> {
     private int size;
     private int currentPosition;
     private int selectedTile;
+    private ArrayList<Integer> lastPositions;
     private Context context;
     private final int FULL_OPACITY = 255;
     private final int QUARTER_OPACITY = 64;
     private final boolean DEFAULT_ENABLED = true;
     private final int width = 5 ;
 
-    public GameViewAdapter(Context context, int size, int currentPosition) {
+    public GameViewAdapter(Context context, int size, int currentPosition, ArrayList<Integer> lastPositions) {
         this.size = size;
         this.currentPosition = currentPosition;
         selectedTile = -1;
         this.context = context;
+        this.lastPositions = lastPositions;
     }
 
     @NonNull
@@ -56,6 +58,9 @@ public class GameViewAdapter extends RecyclerView.Adapter<GameViewHolder> {
         }
         else if (position == selectedTile){
             tile.setImageDrawable(context.getResources().getDrawable(R.drawable.selected_seat));
+        }
+        else if(lastPositions.contains(position)){
+            tile.setImageDrawable(context.getResources().getDrawable(R.drawable.last_seat));
         }
         else {
             tile.setImageDrawable(context.getResources().getDrawable(R.drawable.available_seat));

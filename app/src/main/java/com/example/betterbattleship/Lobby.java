@@ -83,6 +83,7 @@ public class Lobby extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        PlayerListSingleton.getInstance().initializeLastPositions();
         Intent intent = new Intent(this, GameActivity.class);
         startActivity(intent);
     }
