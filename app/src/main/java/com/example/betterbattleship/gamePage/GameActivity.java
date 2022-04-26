@@ -148,7 +148,7 @@ public class GameActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     if (isTurn) {
-                        if (adapter.getSelectedTile() > 0) {
+                        if (adapter.getSelectedTile() >= 0) {
                             shoot(adapter.getSelectedTile());
                         } else {
                             Toast.makeText(getApplicationContext(), "No tile selected", Toast.LENGTH_SHORT).show();
@@ -163,7 +163,7 @@ public class GameActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     if (isTurn) {
-                        if (adapter.getSelectedTile() > 0) {
+                        if (adapter.getSelectedTile() >= 0) {
                             move(adapter.getSelectedTile());
                         } else {
                             Toast.makeText(getApplicationContext(), "No tile selected", Toast.LENGTH_SHORT).show();
