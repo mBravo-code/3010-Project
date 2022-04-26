@@ -1,8 +1,11 @@
 package common;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.betterbattleship.Player;
+import com.example.betterbattleship.SocketManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +20,7 @@ public class PlayerListSingleton {
     public ArrayList<Player> getPlayerList() {return playerList;}
     public void initializePlayerList() {playerList = new ArrayList<>();}
     public void setPlayerList(ArrayList<Player> newPlayerList) {playerList = newPlayerList;}
+    SocketManager.SocketListen listener = null;
 
     public void addNewPlayer(String hostname, int port) {
         int newCoordinates[];
@@ -67,4 +71,12 @@ public class PlayerListSingleton {
     private static final PlayerListSingleton singleton = new PlayerListSingleton();
 
     public static PlayerListSingleton getInstance() {return singleton;}
+
+    public void listen(Context context){
+        if(listener == null) {
+            listener = new SocketManager.SocketListen(context);
+            listener.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+    }
+
 }

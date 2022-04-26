@@ -160,9 +160,7 @@ public class MainActivity extends AppCompatActivity {
         Button joinButton = (Button) findViewById(R.id.JoinButton);
         joinButton.setOnClickListener(v -> joinGame(v));
 
-        // create listener socket
-        SocketManager.SocketListen listener = new SocketManager.SocketListen(getApplicationContext());
-        listener.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        PlayerListSingleton.getInstance().listen(getApplicationContext());
 
         PlayerListSingleton.getInstance().initializePlayerList();
         PlayerListSingleton.getInstance().initializeConsensus();
